@@ -1,0 +1,36 @@
+# Environment variables and secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# SQLite Database files (contain runtime scraped/submitted data)
+*.db
+*.sqlite
+*.sqlite3
+
+# Scratch scripts & temporary logs
+scratch/
+*.log
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zen Data Protsk - Automation Dashboard & QR Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+            <path d="M7 7h.01"></path>
+            <path d="M17 7h.01"></path>
+            <path d="M7 17h.01"></path>
+            <path d="M17 17h.01"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Zen Data Protsk</h1>
+          <div class="brand-subtitle">
+            <span class="live-dot"></span>
+            <span>AI Automation & QR Record Hub</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live status -->
+        <div class="status-indicator" id="connectionStatus" title="System Status">
+          <span class="status-dot online"></span>
+          <span class="status-text">Connected</span>
+        </div>
+
+        <!-- Beep Test Button -->
+        <button id="btnTestBeep" class="btn btn-secondary btn-sm" title="Test Audible Alert Beep">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          Test Alert Beep
+        </button>
+
+        <!-- Auto Refresh Selector -->
+        <div class="refresh-control">
+          <label for="autoRefreshSelect" class="sr-only">Auto Refresh</label>
+          <select id="autoRefreshSelect" class="select-input">
+            <option value="5">Refresh: 5s</option>
+            <option value="10" selected>Refresh: 10s</option>
+            <option value="30">Refresh: 30s</option>
+            <option value="0">Auto Refresh: Off</option>
+          </select>
+          <button id="btnManualRefresh" class="btn btn-icon" title="Refresh Now">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon spin-on-click">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-container">
+    <!-- Quick Stats Cards Bar -->
+    <section class="stats-grid">
+      <!-- Total Completed Card -->
+      <div class="stat-card stat-success">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-data">
+          <span class="stat-label">Generated QR Codes</span>
+          <span class="stat-value" id="statCompleted">0</span>
+          <span class="stat-hint">Successfully submitted & saved</span>
+        </div>
+      </div>
+
+      <!-- Unfilled / Skipped Card -->
+      <div class="stat-card stat-danger">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="stat-data">
+          <span class="stat-label">Unfilled / Skipped Forms</span>
+          <span class="stat-value" id="statUnfilled">0</span>
+          <span class="stat-hint">Skipped on error / missing data (30s)</span>
+        </div>
+      </div>
+
+      <!-- Resolved Skipped Card -->
+      <div class="stat-card stat-info">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-data">
+          <span class="stat-label">Resolved Errors</span>
+          <span class="stat-value" id="statResolved">0</span>
+          <span class="stat-hint">Corrected & completed forms</span>
+        </div>
+      </div>
+
+      <!-- Next QR Queue Card -->
+      <div class="stat-card stat-purple">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+        <div class="stat-data">
+          <span class="stat-label">Next in Queue</span>
+          <span class="stat-value" id="statNextQr">QRCode - 1</span>
+          <span class="stat-hint" id="statLastCompleted">Last: QRCode - 0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-wrapper">
+      <div class="tabs-container">
+        <button class="tab-button active" data-tab="tabCompleted">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Generated QR Codes
+          <span class="badge badge-success" id="tabBadgeCompleted">0</span>
+        </button>
+
+        <button class="tab-button" data-tab="tabUnfilled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          Unfilled Forms (Skipped)
+          <span class="badge badge-danger" id="tabBadgeUnfilled">0</span>
+        </button>
+
+        <button class="tab-button" data-tab="tabVerify">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <polyline points="9 12 11 14 15 10"></polyline>
+          </svg>
+          Verify Submissions
+          <span class="badge badge-info" id="tabBadgeVerify">0</span>
+        </button>
+
+        <button class="tab-button" data-tab="tabManualEntry">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-icon">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Manual QR Entry / Edit
+        </button>
+      </div>
+
+
+      <div class="tab-actions">
+        <!-- Export Dropdown -->
+        <div class="dropdown">
+          <button id="btnExportMenu" class="btn btn-secondary btn-sm dropdown-trigger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Data
+          </button>
+          <div class="dropdown-menu" id="exportDropdown">
+            <button class="dropdown-item" id="exportCompletedCsv">
+              <span>Completed QRs (CSV)</span>
+            </button>
+            <button class="dropdown-item" id="exportCompletedJson">
+              <span>Completed QRs (JSON)</span>
+            </button>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item" id="exportUnfilledCsv">
+              <span>Unfilled Forms (CSV)</span>
+            </button>
+            <button class="dropdown-item" id="exportUnfilledJson">
+              <span>Unfilled Forms (JSON)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Tab 1: Completed Forms View -->
+    <div id="tabCompleted" class="tab-pane active">
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="header-left">
+            <h2>Generated QR Codes History</h2>
+            <p class="subtitle">Complete archive of successfully processed and submitted QR forms</p>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="completedSearchInput" placeholder="Search by QR #, name, company, email, phone...">
+            <button id="completedSearchClear" class="clear-search-btn" style="display:none;">&times;</button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+          <table class="data-table" id="completedTable">
+            <thead>
+              <tr>
+                <th style="width: 110px;">QR Label</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Updated</th>
+                <th style="width: 110px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="completedTableBody">
+              <tr>
+                <td colspan="8" class="text-center py-6 text-muted">Loading records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-bar" id="completedPagination">
+          <div class="pagination-info">
+            Showing <span id="pageStart">0</span>-<span id="pageEnd">0</span> of <span id="pageTotal">0</span> records
+          </div>
+          <div class="pagination-controls">
+            <button id="btnPrevPage" class="btn btn-sm btn-secondary" disabled>Previous</button>
+            <span class="page-current" id="pageCurrentDisplay">Page 1</span>
+            <button id="btnNextPage" class="btn btn-sm btn-secondary">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Unfilled / Skipped Forms View -->
+    <div id="tabUnfilled" class="tab-pane">
+      <div class="card glass-card">
+        <!-- Callout Alert Notice -->
+        <div class="alert-banner">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="alert-content">
+            <h4>Automated Skip & 30s Wait Policy</h4>
+            <p>Whenever an error occurs or data is missing during automation, the system plays an alert beep, logs the QR number here in <strong>Unfilled Forms</strong>, waits 30 seconds, and smoothly advances to the next QR code. You can review, complete, or resolve any skipped form below anytime.</p>
+          </div>
+        </div>
+
+        <div class="card-header mt-4">
+          <div class="header-left">
+            <h2>Unfilled & Skipped Forms</h2>
+            <p class="subtitle">Forms requiring review, manual resolution, or missing data correction</p>
+          </div>
+
+          <!-- Filter by status -->
+          <div class="filter-group">
+            <button class="filter-chip active" data-status="">All Skipped</button>
+            <button class="filter-chip" data-status="unfilled">Unfilled Only</button>
+            <button class="filter-chip" data-status="resolved">Resolved</button>
+          </div>
+        </div>
+
+        <!-- Unfilled Table -->
+        <div class="table-container">
+          <table class="data-table" id="unfilledTable">
+            <thead>
+              <tr>
+                <th style="width: 120px;">QR Number</th>
+                <th style="width: 110px;">Status</th>
+                <th>Reason / Error Description</th>
+                <th>Missing Fields</th>
+                <th>Skipped At</th>
+                <th style="width: 190px; text-align: right;">Handling Actions</th>
+              </tr>
+            </thead>
+            <tbody id="unfilledTableBody">
+              <tr>
+                <td colspan="6" class="text-center py-6 text-muted">No unfilled forms found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Verification & Accuracy Cross-Check View -->
+    <div id="tabVerify" class="tab-pane">
+      <div class="card glass-card">
+        <!-- Live Engine Progress Bar Banner (hidden by default) -->
+        <div id="verifyProgressBanner" class="verify-progress-banner" style="display: none;">
+          <div class="progress-header">
+            <div class="progress-title-group">
+              <span class="spinner-ring"></span>
+              <div>
+                <strong id="verifyProgressTitle">Analyzing Submissions against Source Images...</strong>
+                <p id="verifyProgressSubtitle" class="text-sm text-muted">Connecting to portal...</p>
+              </div>
+            </div>
+            <button id="btnStopVerify" class="btn btn-sm btn-danger">Stop Verification</button>
+          </div>
+          <div class="progress-bar-track">
+            <div id="verifyProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-footer">
+            <span id="verifyProgressCount">0 / 0 QRs processed</span>
+            <span id="verifyProgressPercent" class="font-bold">0%</span>
+          </div>
+        </div>
+
+        <!-- Verification Metrics Summary Cards -->
+        <div class="verify-stats-grid">
+          <div class="stat-card stat-success">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">System Accuracy</span>
+              <span class="stat-value" id="verifyStatAvgAccuracy">0%</span>
+              <span class="stat-hint">Overall cross-check score</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-info">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 14 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Total Verified</span>
+              <span class="stat-value" id="verifyStatTotal">0</span>
+              <span class="stat-hint">Checked against images</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Resolved (100% / Cleared)</span>
+              <span class="stat-value" id="verifyStatResolved">0</span>
+              <span class="stat-hint">Approved verification</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-danger" id="cardFlaggedLow">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Blocked QRs (< 100%)</span>
+              <span class="stat-value" id="verifyStatBlocked">0</span>
+              <span class="stat-hint">Attention / discrepancy hold</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-header mt-4">
+          <div class="header-left">
+            <h2>Submitted Forms Cross-Check & Verification</h2>
+            <p class="subtitle">Direct comparison of portal form entries against original card images (Zero internal database dependency)</p>
+          </div>
+
+          <!-- Controls: Trigger Verification & Filters -->
+          <div class="verify-controls-group">
+            <div class="verify-range-picker">
+              <label for="verifyStartQr" class="text-sm">Range:</label>
+              <input type="number" id="verifyStartQr" min="1" value="1" placeholder="1" class="input-sm">
+              <span class="text-muted">to</span>
+              <input type="number" id="verifyEndQr" min="1" value="160" placeholder="160" class="input-sm">
+            </div>
+
+            <button id="btnStartVerify" class="btn btn-primary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Run Verification
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips & Search Bar -->
+        <div class="filter-and-search-bar">
+          <div class="filter-group">
+            <button class="filter-chip active" data-verify-filter="">All Verified</button>
+            <button class="filter-chip" data-verify-filter="blocked">Blocked Only</button>
+            <button class="filter-chip" data-verify-filter="resolved">Resolved / 100%</button>
+          </div>
+
+
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="verifySearchInput" placeholder="Filter by QR #, name, discrepancies...">
+            <button id="verifySearchClear" class="clear-search-btn" style="display:none;">&times;</button>
+          </div>
+        </div>
+
+        <!-- Verification Results Table -->
+        <div class="table-container">
+          <table class="data-table" id="verifyTable">
+            <thead>
+              <tr>
+                <th style="width: 120px;">QR Number</th>
+                <th style="width: 140px;">Match Accuracy</th>
+                <th style="width: 130px;">Status</th>
+                <th>Field Breakdown (N • D • C • W • A • E • O)</th>
+                <th>Primary Discrepancy / Observation</th>
+                <th style="width: 110px;">Card Image</th>
+                <th style="width: 140px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="verifyTableBody">
+              <tr>
+                <td colspan="7" class="text-center py-6 text-muted">Loading verification records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-bar" id="verifyPagination">
+          <div class="pagination-info">
+            Showing <span id="verifyPageStart">0</span>-<span id="verifyPageEnd">0</span> of <span id="verifyPageTotal">0</span> records
+          </div>
+          <div class="pagination-controls">
+            <button id="btnPrevVerifyPage" class="btn btn-sm btn-secondary" disabled>Previous</button>
+            <span class="page-current" id="verifyPageCurrentDisplay">Page 1</span>
+            <button id="btnNextVerifyPage" class="btn btn-sm btn-secondary">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Manual Entry / Form Editor -->
+    <div id="tabManualEntry" class="tab-pane">
+
+      <div class="card glass-card form-card">
+        <div class="card-header">
+          <div class="header-left">
+            <h2>Manual QR Form Entry & Corrections</h2>
+            <p class="subtitle">Enter or correct all 7 fields for any QR code directly into the database</p>
+          </div>
+        </div>
+
+        <form id="manualEntryForm" class="entry-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="formQrNumber">QR Code Number <span class="required">*</span></label>
+              <div class="input-with-prefix">
+                <span class="prefix">QRCode -</span>
+                <input type="number" id="formQrNumber" min="1" max="1500" required placeholder="e.g. 74">
+              </div>
+              <span class="help-text">Select or type the QR index number</span>
+            </div>
+
+            <div class="form-group">
+              <label for="formName">Full Name <span class="required">*</span></label>
+              <input type="text" id="formName" required placeholder="e.g. John Doe">
+            </div>
+
+            <div class="form-group">
+              <label for="formDesignation">Designation <span class="required">*</span></label>
+              <input type="text" id="formDesignation" required placeholder="e.g. Senior Software Architect">
+            </div>
+
+            <div class="form-group">
+              <label for="formCompany">Company Name <span class="required">*</span></label>
+              <input type="text" id="formCompany" required placeholder="e.g. Acme Innovations Inc">
+            </div>
+
+            <div class="form-group">
+              <label for="formWebsite">Website <span class="required">*</span></label>
+              <input type="text" id="formWebsite" required placeholder="e.g. www.acme.com or https://acme.com">
+            </div>
+
+            <div class="form-group">
+              <label for="formEmail">Email Address <span class="required">*</span></label>
+              <input type="email" id="formEmail" required placeholder="e.g. contact@acme.com">
+            </div>
+
+            <div class="form-group">
+              <label for="formOfficeContact">Office Contact <span class="required">*</span></label>
+              <input type="text" id="formOfficeContact" required placeholder="e.g. (408) 555-1234">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="formAddress">Full Address <span class="required">*</span></label>
+              <textarea id="formAddress" rows="2" required placeholder="e.g. 100 Main St, Suite 400, San Jose, CA 95131"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="reset" class="btn btn-secondary">Clear Fields</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveManual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save to Database
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Verification Detail & Comparison Modal -->
+  <div class="modal-backdrop" id="verifyDetailModal">
+    <div class="modal-card modal-xl">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="badge badge-purple" id="verifyModalQr">QRCode - 0</span>
+          <span class="badge badge-success" id="verifyModalAccuracy">100% Match</span>
+          <span class="badge badge-danger" id="verifyModalStatusBadge">Blocked</span>
+          <h3 id="verifyModalTitle">Verification Cross-Check & Inspection</h3>
+        </div>
+
+        <div class="modal-header-actions">
+          <button id="btnModalResolveTop" class="btn btn-sm btn-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Resolved
+          </button>
+          <button id="btnModalBlockTop" class="btn btn-sm btn-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            Blocked
+          </button>
+          <button class="modal-close-btn" id="verifyModalCloseBtn">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Prominent Large Original Card Image Showcase -->
+        <div class="large-image-showcase">
+          <div class="showcase-header">
+            <span class="text-xs text-muted font-bold uppercase">Original QR Card Source Image (Large View)</span>
+            <a id="verifyModalImgLink" href="#" target="_blank" class="text-xs text-info font-bold">Open Full Resolution in New Tab &nearr;</a>
+          </div>
+          <div class="large-img-frame">
+            <img id="verifyModalImg" src="" alt="Card Source Image" class="verify-preview-img-large">
+          </div>
+        </div>
+
+        <!-- Raw OCR Text Box -->
+        <div class="raw-ocr-box mt-3">
+          <span class="text-xs text-muted font-bold uppercase mb-1 block">Raw 3-Pass OCR Text Extracted from Card</span>
+          <pre id="verifyModalRawOcr" class="code-preview text-xs"></pre>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="mt-4">
+          <h4 class="mb-2 text-sm font-bold uppercase text-muted">7-Field Verbatim Comparison (Portal Submission vs Image Ground Truth)</h4>
+          <div class="table-container">
+            <table class="data-table verify-diff-table">
+              <thead>
+                <tr>
+                  <th style="width: 130px;">Field</th>
+                  <th>Website Submitted Data</th>
+                  <th>Original Card Image Ground Truth</th>
+                  <th style="width: 90px; text-align: center;">Match %</th>
+                  <th style="width: 100px; text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="verifyModalFieldsBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- AI Verification Note -->
+        <div class="mt-4" id="verifyModalAiNoteContainer">
+          <div class="ai-note-header">
+            <span class="ai-badge-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="width: 14px; height: 14px;">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+              </svg>
+              AI NOTE
+            </span>
+            <span id="verifyModalAiConfidence" class="text-xs text-muted font-mono">Verbatim Cross-Check Analysis</span>
+          </div>
+          <div id="verifyModalAiNoteBox" class="ai-note-card">
+            <div id="verifyModalAiNoteText" class="ai-note-body"></div>
+            <ul id="verifyModalDiscList" class="disc-list text-sm mt-2" style="display: none;"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-footer-actions-left" style="display: flex; gap: 0.65rem;">
+          <button id="btnModalResolve" class="btn btn-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Mark as Resolved
+          </button>
+          <button id="btnModalBlock" class="btn btn-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            Mark as Blocked
+          </button>
+        </div>
+        <button class="btn btn-secondary" id="verifyModalCloseBtnFooter">Close Comparison</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Record Inspection & Detail Modal -->
+  <div class="modal-backdrop" id="detailModal">
+
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="badge badge-purple" id="modalQrLabel">QRCode - 0</span>
+          <h3 id="modalName">Full Name</h3>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modalBody">
+        <!-- 7 Fields Display -->
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Designation</span>
+            <span class="detail-val" id="modalDesignation">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Company</span>
+            <span class="detail-val" id="modalCompany">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Email</span>
+            <span class="detail-val text-break" id="modalEmail">-</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Office Contact</span>
+            <span class="detail-val" id="modalOfficeContact">-</span>
+          </div>
+
+          <div class="detail-item full-width">
+            <span class="detail-label">Website</span>
+            <span class="detail-val text-break" id="modalWebsite">-</span>
+          </div>
+
+          <div class="detail-item full-width">
+            <span class="detail-label">Address</span>
+            <span class="detail-val" id="modalAddress">-</span>
+          </div>
+
+          <div class="detail-item full-width">
+            <span class="detail-label">Completed / Updated At</span>
+            <span class="detail-val text-muted" id="modalUpdatedAt">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalCloseBtnFooter">Close</button>
+        <button class="btn btn-primary" id="modalEditBtn">Edit Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raw OCR / Unfilled Inspect Modal -->
+  <div class="modal-backdrop" id="unfilledModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="badge badge-danger" id="unfilledModalQr">QRCode - 0</span>
+          <h3>Skipped Form Details</h3>
+        </div>
+        <button class="modal-close-btn" id="unfilledModalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="unfilled-info-box">
+          <div class="mb-3">
+            <strong class="text-danger">Reason:</strong>
+            <p id="unfilledModalReason" class="mt-1 text-sm"></p>
+          </div>
+          <div class="mb-3">
+            <strong>Missing Fields:</strong>
+            <div id="unfilledModalMissing" class="tags-list mt-1"></div>
+          </div>
+          <div>
+            <strong>Raw Extracted Data (if any):</strong>
+            <pre id="unfilledModalRaw" class="code-preview mt-1"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="unfilledModalCloseBtnFooter">Close</button>
+        <button class="btn btn-success" id="unfilledModalFillBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Fill & Resolve Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
