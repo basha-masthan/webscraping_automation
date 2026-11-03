@@ -15,7 +15,20 @@ export async function GET(req: NextRequest, { params }: { params: { qrNumber: st
       return NextResponse.json({ success: false, error: "Form not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: form });
+    // Also look up next unverified form
+    const nextUnverified = await db.collection("qr_forms").findOne(
+      {
+        qr_number: { $gt: num },
+        verification_status: "unverified",
+      },
+      { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: form,
+      nextQrNumber: nextUnverified?.qr_number || null,
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -38,10 +51,88 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
     }
 
     const now = new Date().toISOString();
+    const uName = (userName || "Reviewer").trim();
 
+    // 1. Lock acquisition / heartbeat check
+    if (action === "acquire_lock") {
+      const active = existing.active_reviewer;
+      const isLockedByOther =
+        active &&
+        active.name !== uName &&
+        Date.now() - new Date(active.timestamp).getTime() < 45000;
+
+      if (isLockedByOther) {
+        return NextResponse.json({
+          success: true,
+          isLocked: true,
+          lockedBy: active.name,
+          message: `${active.name} is currently reviewing this form.`,
+        });
+      }
+
+      await db.collection("qr_forms").updateOne(
+        { qr_number: num },
+        {
+          $set: {
+            active_reviewer: { name: uName, timestamp: now },
+          },
+        }
+      );
+      return NextResponse.json({ success: true, isLocked: false });
+    }
+
+    // 2. Release lock
+    if (action === "release_lock") {
+      if (existing.active_reviewer?.name === uName) {
+        await db.collection("qr_forms").updateOne(
+          { qr_number: num },
+          { $unset: { active_reviewer: "" } }
+        );
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    // Helper: Find next unverified form
+    const findNextUnverified = async () => {
+      const nextDoc = await db.collection("qr_forms").findOne(
+        {
+          qr_number: { $gt: num },
+          verification_status: "unverified",
+        },
+        { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
+      );
+      if (nextDoc) return nextDoc.qr_number;
+
+      // Wrap around to start if none ahead
+      const firstDoc = await db.collection("qr_forms").findOne(
+        {
+          verification_status: "unverified",
+        },
+        { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
+      );
+      return firstDoc?.qr_number || null;
+    };
+
+    // 3. Verify No Errors Action
     if (action === "verify_no_errors") {
-      // User confirms form is 100% correct without changes
-      const uName = (userName || "Reviewer").trim();
+      // Concurrency check: If another user already updated or verified this form
+      const alreadyHandledByOther =
+        (existing.verification_status === "user_verified" && existing.verified_by !== uName) ||
+        (existing.verification_status === "user_updated" && existing.updated_by !== uName) ||
+        existing.verification_status === "admin_verified";
+
+      if (alreadyHandledByOther) {
+        const who = existing.updated_by || existing.verified_by || "another user";
+        const nextQr = await findNextUnverified();
+        return NextResponse.json({
+          success: false,
+          conflict: true,
+          completedBy: who,
+          message: `This form was already completed by ${who}! Advancing to next form...`,
+          nextQrNumber: nextQr,
+        });
+      }
+
       await db.collection("qr_forms").updateOne(
         { qr_number: num },
         {
@@ -51,15 +142,42 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
             verified_by: uName,
             verified_at: now,
             updated_at: now,
+            version: (existing.version || 1) + 1,
           },
+          $unset: { active_reviewer: "" },
         }
       );
-      return NextResponse.json({ success: true, message: `Marked verified by ${uName}` });
-    } else if (action === "update_form") {
-      // User found errors and edited fields
-      const uName = (userName || "Reviewer").trim();
+
+      const nextQr = await findNextUnverified();
+
+      return NextResponse.json({
+        success: true,
+        message: `Marked verified by ${uName}`,
+        nextQrNumber: nextQr,
+      });
+    }
+
+    // 4. Update Form Action
+    if (action === "update_form") {
       if (!updatedFields || typeof updatedFields !== "object") {
         return NextResponse.json({ success: false, error: "Missing updated fields" }, { status: 400 });
+      }
+
+      // Concurrency check
+      const alreadyUpdatedByOther =
+        (existing.verification_status === "user_updated" && existing.updated_by !== uName) ||
+        existing.verification_status === "admin_verified";
+
+      if (alreadyUpdatedByOther) {
+        const who = existing.updated_by || "another user";
+        const nextQr = await findNextUnverified();
+        return NextResponse.json({
+          success: false,
+          conflict: true,
+          completedBy: who,
+          message: `Form was already updated by ${who}! Advancing to next form...`,
+          nextQrNumber: nextQr,
+        });
       }
 
       const updatePayload: any = {
@@ -73,7 +191,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
         verification_status: "user_updated",
         updated_by: uName,
         updated_at: now,
-        // Save previous version snapshot
+        version: (existing.version || 1) + 1,
+        // Preserve previous snapshot
         previous_data: {
           name: existing.name,
           designation: existing.designation,
@@ -85,9 +204,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
         },
       };
 
-      await db.collection("qr_forms").updateOne({ qr_number: num }, { $set: updatePayload });
+      await db.collection("qr_forms").updateOne(
+        { qr_number: num },
+        {
+          $set: updatePayload,
+          $unset: { active_reviewer: "" },
+        }
+      );
 
-      // Automatically push into fill_queue so Admin can Auto-Fill original portal
+      // Queue for Portal Auto-Fill
       await db.collection("fill_queue").updateOne(
         { qr_number: num },
         {
@@ -102,12 +227,17 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
         { upsert: true }
       );
 
+      const nextQr = await findNextUnverified();
+
       return NextResponse.json({
         success: true,
         message: `Updated by ${uName} and queued for portal auto-fill`,
+        nextQrNumber: nextQr,
       });
-    } else if (action === "admin_verify") {
-      // Admin verification
+    }
+
+    // 5. Admin verification
+    if (action === "admin_verify") {
       if (adminPasskey !== (process.env.ADMIN_PASSKEY || "adminbasha")) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
       }
@@ -132,4 +262,3 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-

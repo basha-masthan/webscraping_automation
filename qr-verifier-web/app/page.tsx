@@ -10,7 +10,6 @@ import {
   Filter,
   RefreshCw,
   LogOut,
-  ExternalLink,
   ChevronLeft,
   ChevronRight,
   User,
@@ -24,6 +23,11 @@ import {
   Copy,
   Check,
   Zap,
+  Sparkles,
+  Maximize2,
+  ArrowRight,
+  Clock,
+  Eye,
 } from "lucide-react";
 
 interface QRForm {
@@ -37,13 +41,29 @@ interface QRForm {
   address: string;
   email: string;
   office_contact: string;
+  image_url?: string;
+  image_data?: {
+    name?: string;
+    designation?: string;
+    company?: string;
+    website?: string;
+    address?: string;
+    email?: string;
+    office_contact?: string;
+  };
+  ocr_raw_text?: string;
+  discrepancies?: string;
   status: string;
   verification_status: "admin_verified" | "user_verified" | "user_updated" | "unverified";
   verified_by?: string;
   verified_at?: string;
   updated_by?: string;
   updated_at?: string;
-  ocr_raw_text?: string;
+  version?: number;
+  active_reviewer?: {
+    name: string;
+    timestamp: string;
+  };
 }
 
 export default function Home() {
@@ -64,16 +84,21 @@ export default function Home() {
   const [search, setSearch] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  // Edit modal
-  const [editingForm, setEditingForm] = useState<QRForm | null>(null);
-  const [editFields, setEditFields] = useState<any>({});
+  // Review / Edit Modal
+  const [activeForm, setActiveForm] = useState<QRForm | null>(null);
+  const [formData, setFormData] = useState<any>({});
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [saveSuccess, setSaveSuccess] = useState<string>("");
+  const [notification, setNotification] = useState<{ type: "success" | "error" | "warning"; text: string } | null>(null);
+  const [lockWarning, setLockWarning] = useState<string | null>(null);
+
+  // AI Assist
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
+  const [aiSuggestions, setAiSuggestions] = useState<any>(null);
 
   // Quick verify feedback
   const [verifyingId, setVerifyingId] = useState<number | null>(null);
 
-  // 1. Device ID initialization
+  // 1. Initial Device ID & Token Auth Check
   useEffect(() => {
     let devId = localStorage.getItem("qr_device_id");
     if (!devId) {
@@ -136,7 +161,7 @@ export default function Home() {
     try {
       const params = new URLSearchParams({
         page: pageNum.toString(),
-        limit: "20",
+        limit: "18",
         search: searchQuery,
         verificationStatus: statusQuery,
       });
@@ -157,10 +182,74 @@ export default function Home() {
     }
   };
 
-  const handleMarkVerifiedNoErrors = async (form: QRForm) => {
-    setVerifyingId(form.qr_number);
+  // Open Form Verification & Acquire Lock
+  const openVerificationModal = async (form: QRForm) => {
+    setActiveForm(form);
+    setFormData({
+      name: form.name || "",
+      designation: form.designation || "",
+      company: form.company || "",
+      website: form.website || "",
+      address: form.address || "",
+      email: form.email || "",
+      office_contact: form.office_contact || "",
+    });
+    setNotification(null);
+    setLockWarning(null);
+    setAiSuggestions(null);
+
+    // Acquire heartbeat lock
     try {
       const res = await fetch(`/api/forms/${form.qr_number}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "acquire_lock", userName }),
+      });
+      const lockData = await res.json();
+      if (lockData.isLocked) {
+        setLockWarning(`⚠️ ${lockData.lockedBy} is currently reviewing this form. Changes submitted first will take precedence.`);
+      }
+    } catch (e) {
+      console.warn("Lock acquire error:", e);
+    }
+  };
+
+  const closeVerificationModal = async () => {
+    if (activeForm) {
+      // Release lock
+      fetch(`/api/forms/${activeForm.qr_number}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "release_lock", userName }),
+      }).catch(() => {});
+    }
+    setActiveForm(null);
+  };
+
+  // Load a specific QR number into modal
+  const loadSpecificForm = async (qrNum: number) => {
+    try {
+      const res = await fetch(`/api/forms/${qrNum}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        openVerificationModal(data.data);
+      } else {
+        closeVerificationModal();
+        fetchForms(page, search, filterStatus);
+      }
+    } catch (e) {
+      closeVerificationModal();
+    }
+  };
+
+  // 1. Action: Mark Verified (No Errors)
+  const handleVerifyNoErrors = async () => {
+    if (!activeForm) return;
+    setIsSaving(true);
+    setNotification(null);
+
+    try {
+      const res = await fetch(`/api/forms/${activeForm.qr_number}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -169,63 +258,107 @@ export default function Home() {
         }),
       });
       const data = await res.json();
-      if (data.success) {
+
+      if (data.conflict) {
+        // Concurrency conflict - other user finished first
+        setNotification({
+          type: "warning",
+          text: data.message,
+        });
+        setTimeout(() => {
+          if (data.nextQrNumber) {
+            loadSpecificForm(data.nextQrNumber);
+          } else {
+            closeVerificationModal();
+            fetchForms(page, search, filterStatus);
+          }
+        }, 1800);
+      } else if (data.success) {
+        setNotification({
+          type: "success",
+          text: `Marked as Verified by ${userName}! Moving to next form...`,
+        });
+
+        // Update list in background
         setForms((prev) =>
           prev.map((f) =>
-            f.qr_number === form.qr_number
+            f.qr_number === activeForm.qr_number
               ? {
                   ...f,
                   verification_status: "user_verified",
+                  status: "verified",
                   verified_by: userName,
                   verified_at: new Date().toISOString(),
                 }
               : f
           )
         );
+
+        // Advance to next form immediately
+        setTimeout(() => {
+          if (data.nextQrNumber) {
+            loadSpecificForm(data.nextQrNumber);
+          } else {
+            setNotification({ type: "success", text: "All forms verified! Great work." });
+            setTimeout(() => {
+              closeVerificationModal();
+              fetchForms(page, search, filterStatus);
+            }, 1200);
+          }
+        }, 800);
+      } else {
+        setNotification({ type: "error", text: data.error || "Failed to verify" });
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setNotification({ type: "error", text: err.message });
     } finally {
-      setVerifyingId(null);
+      setIsSaving(false);
     }
   };
 
-  const openEditModal = (form: QRForm) => {
-    setEditingForm(form);
-    setEditFields({
-      name: form.name,
-      designation: form.designation,
-      company: form.company,
-      website: form.website,
-      address: form.address,
-      email: form.email,
-      office_contact: form.office_contact,
-    });
-    setSaveSuccess("");
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingForm) return;
+  // 2. Action: Save Updates
+  const handleSaveUpdate = async () => {
+    if (!activeForm) return;
     setIsSaving(true);
+    setNotification(null);
+
     try {
-      const res = await fetch(`/api/forms/${editingForm.qr_number}`, {
+      const res = await fetch(`/api/forms/${activeForm.qr_number}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "update_form",
           userName: userName,
-          updatedFields: editFields,
+          updatedFields: formData,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        setSaveSuccess(`Updated by ${userName}! Queued for Auto-Fill.`);
+
+      if (data.conflict) {
+        setNotification({
+          type: "warning",
+          text: data.message,
+        });
+        setTimeout(() => {
+          if (data.nextQrNumber) {
+            loadSpecificForm(data.nextQrNumber);
+          } else {
+            closeVerificationModal();
+            fetchForms(page, search, filterStatus);
+          }
+        }, 1800);
+      } else if (data.success) {
+        setNotification({
+          type: "success",
+          text: `Saved & Updated by ${userName}! Queued for Auto-Fill. Moving to next form...`,
+        });
+
         setForms((prev) =>
           prev.map((f) =>
-            f.qr_number === editingForm.qr_number
+            f.qr_number === activeForm.qr_number
               ? {
                   ...f,
-                  ...editFields,
+                  ...formData,
                   verification_status: "user_updated",
                   updated_by: userName,
                   updated_at: new Date().toISOString(),
@@ -233,22 +366,62 @@ export default function Home() {
               : f
           )
         );
+
         setTimeout(() => {
-          setEditingForm(null);
-        }, 1200);
+          if (data.nextQrNumber) {
+            loadSpecificForm(data.nextQrNumber);
+          } else {
+            closeVerificationModal();
+            fetchForms(page, search, filterStatus);
+          }
+        }, 800);
+      } else {
+        setNotification({ type: "error", text: data.error || "Failed to update" });
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setNotification({ type: "error", text: err.message });
     } finally {
       setIsSaving(false);
     }
   };
 
+  // 3. AI Assistant Trigger
+  const handleAskAi = async () => {
+    if (!activeForm) return;
+    setIsAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ocr_raw_text: activeForm.ocr_raw_text,
+          current_form: formData,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.ai_data) {
+        setAiSuggestions(data.ai_data);
+      } else {
+        alert("AI models could not re-extract: " + (data.error || "Unknown"));
+      }
+    } catch (err: any) {
+      alert("AI error: " + err.message);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // Helper to copy a field from extracted/image_data into the filled form
+  const copyExtractedField = (field: string, val: string | undefined) => {
+    if (!val) return;
+    setFormData((prev: any) => ({ ...prev, [field]: val }));
+  };
+
   // Auth gate view
   if (!isAuthenticated) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
-        <div className="w-full max-w-md p-8 bg-slate-900/80 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-xl">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-slate-950">
+        <div className="w-full max-w-md p-8 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-xl">
           <div className="flex justify-center mb-6">
             <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl">
               <Shield className="w-10 h-10 text-indigo-400" />
@@ -257,7 +430,7 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-center text-white mb-2">
             AI QR Verification Portal
           </h1>
-          <p className="text-sm text-slate-400 text-center mb-6">
+          <p className="text-xs text-slate-400 text-center mb-6">
             Enter your one-time Verification Access Token provided by the admin.
           </p>
 
@@ -273,7 +446,7 @@ export default function Home() {
                   placeholder="e.g. TOKEN-82E131DC02E4"
                   value={authToken}
                   onChange={(e) => setAuthToken(e.target.value.toUpperCase())}
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   required
                 />
               </div>
@@ -289,7 +462,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={isVerifyingToken}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
             >
               {isVerifyingToken ? (
                 <>
@@ -317,9 +490,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4">
+      <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
@@ -327,12 +500,12 @@ export default function Home() {
             </div>
             <div>
               <h1 className="font-bold text-lg text-white">AI Automation Forms Verifier</h1>
-              <p className="text-xs text-slate-400">Collaborative QR Verification Hub</p>
+              <p className="text-xs text-slate-400">Verifying Portal-Filled Data against Image Cards</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-800/60 border border-slate-700/60 rounded-xl text-xs text-slate-300">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 border border-slate-700/80 rounded-xl text-xs text-slate-300">
               <User className="w-3.5 h-3.5 text-emerald-400" />
               <span>Reviewer:</span>
               <strong className="text-emerald-300 font-semibold">{userName}</strong>
@@ -348,7 +521,7 @@ export default function Home() {
             <button
               onClick={handleLogout}
               className="p-2 text-slate-400 hover:text-rose-400 transition"
-              title="Logout"
+              title="Logout / Switch Device"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -356,197 +529,191 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
-        {/* Statistics Bar */}
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
+        {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
           <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl">
-            <div className="text-xs text-slate-400">Total Cards</div>
-            <div className="text-2xl font-bold text-white mt-1">{stats.total || 0}</div>
+            <span className="text-xs text-slate-400 font-medium">Total Forms</span>
+            <div className="text-2xl font-bold text-white mt-1">{stats.total || totalCount}</div>
           </div>
-          <div className="p-4 bg-emerald-950/20 border border-emerald-900/30 rounded-2xl">
-            <div className="text-xs text-emerald-400">Admin Verified</div>
-            <div className="text-2xl font-bold text-emerald-300 mt-1">{stats.adminVerified || 0}</div>
+          <div className="p-4 bg-slate-900/60 border border-amber-500/20 rounded-2xl">
+            <span className="text-xs text-amber-400 font-medium">Pending Review</span>
+            <div className="text-2xl font-bold text-amber-300 mt-1">{stats.unverified || 0}</div>
           </div>
-          <div className="p-4 bg-cyan-950/20 border border-cyan-900/30 rounded-2xl">
-            <div className="text-xs text-cyan-400">User Verified</div>
-            <div className="text-2xl font-bold text-cyan-300 mt-1">{stats.userVerified || 0}</div>
+          <div className="p-4 bg-slate-900/60 border border-emerald-500/20 rounded-2xl">
+            <span className="text-xs text-emerald-400 font-medium">User Verified</span>
+            <div className="text-2xl font-bold text-emerald-300 mt-1">{stats.userVerified || 0}</div>
           </div>
-          <div className="p-4 bg-amber-950/20 border border-amber-900/30 rounded-2xl">
-            <div className="text-xs text-amber-400">User Updated</div>
-            <div className="text-2xl font-bold text-amber-300 mt-1">{stats.userUpdated || 0}</div>
+          <div className="p-4 bg-slate-900/60 border border-cyan-500/20 rounded-2xl">
+            <span className="text-xs text-cyan-400 font-medium">User Updated</span>
+            <div className="text-2xl font-bold text-cyan-300 mt-1">{stats.userUpdated || 0}</div>
           </div>
-          <div className="p-4 bg-rose-950/20 border border-rose-900/30 rounded-2xl col-span-2 sm:col-span-1">
-            <div className="text-xs text-rose-400">Unverified</div>
-            <div className="text-2xl font-bold text-rose-300 mt-1">{stats.unverified || 0}</div>
+          <div className="p-4 bg-slate-900/60 border border-indigo-500/20 rounded-2xl">
+            <span className="text-xs text-indigo-400 font-medium">Admin Verified</span>
+            <div className="text-2xl font-bold text-indigo-300 mt-1">{stats.adminVerified || 0}</div>
           </div>
         </div>
 
-        {/* Filter & Search Bar */}
+        {/* Search & Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
             <input
               type="text"
-              placeholder="Search by QR number, Name, Company, or Email..."
+              placeholder="Search by QR number (e.g. 860), Name, Company, Email..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                fetchForms(1, e.target.value, filterStatus);
-              }}
-              className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && fetchForms(1, search, filterStatus)}
+              className="w-full pl-10 pr-4 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <select
-              value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                fetchForms(1, search, e.target.value);
-              }}
-              className="bg-slate-900 border border-slate-800 rounded-xl text-sm text-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="all">All Statuses</option>
-              <option value="unverified">Unverified Only</option>
-              <option value="user_verified">User Verified</option>
-              <option value="user_updated">User Updated (Queued for Fill)</option>
-              <option value="admin_verified">Admin Verified</option>
-            </select>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 rounded-xl p-1 text-xs">
+              <button
+                onClick={() => {
+                  setFilterStatus("all");
+                  fetchForms(1, search, "all");
+                }}
+                className={`px-3 py-1.5 rounded-lg transition ${
+                  filterStatus === "all" ? "bg-indigo-600 text-white font-medium" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => {
+                  setFilterStatus("unverified");
+                  fetchForms(1, search, "unverified");
+                }}
+                className={`px-3 py-1.5 rounded-lg transition ${
+                  filterStatus === "unverified" ? "bg-amber-600 text-white font-medium" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => {
+                  setFilterStatus("user_verified");
+                  fetchForms(1, search, "user_verified");
+                }}
+                className={`px-3 py-1.5 rounded-lg transition ${
+                  filterStatus === "user_verified" ? "bg-emerald-600 text-white font-medium" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Verified
+              </button>
+              <button
+                onClick={() => {
+                  setFilterStatus("user_updated");
+                  fetchForms(1, search, "user_updated");
+                }}
+                className={`px-3 py-1.5 rounded-lg transition ${
+                  filterStatus === "user_updated" ? "bg-cyan-600 text-white font-medium" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Updated
+              </button>
+            </div>
 
             <button
               onClick={() => fetchForms(page, search, filterStatus)}
-              className="p-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-slate-300 transition"
-              title="Refresh"
+              className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition"
+              title="Refresh Queue"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
         </div>
 
-        {/* Cards Grid */}
+        {/* Forms Card Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-            <RefreshCw className="w-8 h-8 animate-spin text-indigo-400 mb-3" />
-            <span>Loading verified forms from MongoDB...</span>
+            <RefreshCw className="w-8 h-8 animate-spin mb-3 text-indigo-400" />
+            <span className="text-sm">Loading verification records from database...</span>
           </div>
         ) : forms.length === 0 ? (
-          <div className="text-center py-20 text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-            No matching QR forms found.
+          <div className="flex flex-col items-center justify-center py-24 border border-dashed border-slate-800 rounded-2xl text-slate-400">
+            <AlertCircle className="w-10 h-10 mb-3 text-slate-600" />
+            <p className="text-sm font-medium">No forms found matching your filter</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {forms.map((form) => {
-              const isAdm = form.verification_status === "admin_verified";
-              const isUsrVer = form.verification_status === "user_verified";
-              const isUsrUpd = form.verification_status === "user_updated";
+              const isUnverified = form.verification_status === "unverified";
+              const isUserVerified = form.verification_status === "user_verified";
+              const isUserUpdated = form.verification_status === "user_updated";
+              const isAdminVerified = form.verification_status === "admin_verified";
 
               return (
                 <div
-                  key={form.qr_number}
-                  className="bg-slate-900/60 border border-slate-800/80 hover:border-slate-700/80 rounded-2xl p-6 transition flex flex-col justify-between shadow-lg"
+                  key={form._id || form.qr_number}
+                  className="bg-slate-900/70 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 shadow-lg flex flex-col justify-between transition group"
                 >
                   <div>
                     {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-800/80">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-xs font-mono font-bold">
+                        <span className="text-xs font-mono font-bold px-2.5 py-1 bg-slate-800 border border-slate-700/60 rounded-lg text-indigo-300">
                           QR #{form.qr_number}
                         </span>
-                        <h2 className="font-semibold text-white text-base">{form.name || "Untitled Name"}</h2>
+                        {form.image_url && (
+                          <span className="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-md flex items-center gap-1">
+                            <Eye className="w-3 h-3" /> Image Attached
+                          </span>
+                        )}
                       </div>
 
-                      {/* Status Tag */}
-                      {isAdm ? (
-                        <span className="px-2.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-full flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Admin Verified
+                      {/* Status Badges */}
+                      {isAdminVerified ? (
+                        <span className="text-[11px] font-medium px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-lg flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Admin Verified
                         </span>
-                      ) : isUsrVer ? (
-                        <span className="px-2.5 py-0.5 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-medium rounded-full flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Verified by {form.verified_by}
+                      ) : isUserUpdated ? (
+                        <span className="text-[11px] font-medium px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg flex items-center gap-1">
+                          <Edit3 className="w-3.5 h-3.5" /> Updated by {form.updated_by}
                         </span>
-                      ) : isUsrUpd ? (
-                        <span className="px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium rounded-full flex items-center gap-1">
-                          <Edit3 className="w-3 h-3" /> Updated by {form.updated_by}
+                      ) : isUserVerified ? (
+                        <span className="text-[11px] font-medium px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center gap-1">
+                          <Check className="w-3.5 h-3.5" /> Verified by {form.verified_by}
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 bg-slate-800 text-slate-400 text-xs font-medium rounded-full">
-                          Unverified
+                        <span className="text-[11px] font-medium px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg">
+                          Pending Review
                         </span>
                       )}
                     </div>
 
-                    {/* Fields List */}
-                    <div className="space-y-2 text-xs mb-6">
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <Briefcase className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Designation:</span>
-                        <span className="text-slate-100 font-mono">{form.designation || "—"}</span>
+                    {/* Filled Form Data Snippet */}
+                    <div className="space-y-1.5 text-xs mb-4">
+                      <div className="font-semibold text-white text-sm line-clamp-1">
+                        {form.name || "<No Name>"}
                       </div>
-
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <Building className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Company:</span>
-                        <span className="text-slate-100 font-mono font-semibold">{form.company || "—"}</span>
+                      <div className="text-slate-400 line-clamp-1">{form.designation}</div>
+                      <div className="text-slate-300 font-medium flex items-center gap-1.5 line-clamp-1">
+                        <Building className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        {form.company}
                       </div>
-
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <Globe className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Website:</span>
-                        <a
-                          href={form.website.startsWith("http") ? form.website : `https://${form.website}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-indigo-400 hover:underline font-mono truncate"
-                        >
-                          {form.website || "—"}
-                        </a>
+                      <div className="text-slate-400 text-[11px] flex items-center gap-1.5 line-clamp-1">
+                        <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        {form.email}
                       </div>
-
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Address:</span>
-                        <span className="text-slate-100 font-mono">{form.address || "—"}</span>
-                      </div>
-
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Email:</span>
-                        <span className="text-slate-100 font-mono">{form.email || "—"}</span>
-                      </div>
-
-                      <div className="flex items-start gap-2 text-slate-300">
-                        <Phone className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                        <span className="font-medium text-slate-400 shrink-0">Office Contact:</span>
-                        <span className="text-slate-100 font-mono font-semibold text-emerald-400">
-                          {form.office_contact || "—"}
-                        </span>
+                      <div className="text-slate-400 text-[11px] flex items-center gap-1.5 line-clamp-1 font-mono">
+                        <Phone className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        {form.office_contact}
                       </div>
                     </div>
                   </div>
 
-                  {/* Actions Bar */}
-                  <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
+                  {/* Actions */}
+                  <div className="pt-3 border-t border-slate-800/80 flex items-center gap-2">
                     <button
-                      onClick={() => openEditModal(form)}
-                      className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700/80 text-slate-200 text-xs font-medium rounded-xl transition flex items-center justify-center gap-1.5"
+                      onClick={() => openVerificationModal(form)}
+                      className="flex-1 py-2 px-3 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 hover:from-indigo-500/30 hover:to-cyan-500/30 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5"
                     >
-                      <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                      Update Form
-                    </button>
-
-                    <button
-                      onClick={() => handleMarkVerifiedNoErrors(form)}
-                      disabled={verifyingId === form.qr_number || isAdm}
-                      className="flex-1 py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium rounded-xl transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
-                      {verifyingId === form.qr_number ? (
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      )}
-                      Verified by {userName}
+                      <Eye className="w-3.5 h-3.5" />
+                      Verify Form & Image
                     </button>
                   </div>
                 </div>
@@ -581,134 +748,427 @@ export default function Home() {
         )}
       </main>
 
-      {/* Edit Modal */}
-      {editingForm && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
-              <div>
-                <h3 className="font-bold text-lg text-white">
-                  Update Form: QR #{editingForm.qr_number}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Will be recorded as Updated by {userName} and queued for Original Portal Auto-Fill
-                </p>
+      {/* ======================================================= */}
+      {/* FULL VERIFICATION MODAL (Image Top -> Filled Middle -> Extracted Bottom) */}
+      {/* ======================================================= */}
+      {activeForm && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-7 shadow-2xl my-auto max-h-[96vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-mono font-bold px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-xl">
+                  QR #{activeForm.qr_number}
+                </span>
+                <div>
+                  <h3 className="font-bold text-base sm:text-lg text-white">
+                    Verify Form & Business Card
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Review filled form against original image card. You can edit errors directly below.
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => setEditingForm(null)}
-                className="text-slate-400 hover:text-white"
-              >
-                &times;
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loadSpecificForm(activeForm.qr_number - 1)}
+                  disabled={activeForm.qr_number <= 1}
+                  className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition disabled:opacity-30"
+                  title="Previous QR"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => loadSpecificForm(activeForm.qr_number + 1)}
+                  className="p-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition"
+                  title="Next QR"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={closeVerificationModal}
+                  className="p-2 text-slate-400 hover:text-white text-lg ml-2"
+                >
+                  &times;
+                </button>
+              </div>
             </div>
 
-            {saveSuccess && (
-              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs flex items-center gap-2">
-                <Check className="w-4 h-4" />
-                {saveSuccess}
+            {/* Notification / Concurrency Banner */}
+            {lockWarning && (
+              <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-xl text-xs flex items-center gap-2 shrink-0">
+                <Clock className="w-4 h-4 shrink-0 text-amber-400" />
+                <span>{lockWarning}</span>
               </div>
             )}
 
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block text-slate-400 font-medium mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={editFields.name || ""}
-                  onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                />
+            {notification && (
+              <div
+                className={`mt-3 p-3 rounded-xl text-xs flex items-center gap-2 shrink-0 ${
+                  notification.type === "success"
+                    ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-300"
+                    : notification.type === "warning"
+                    ? "bg-amber-500/10 border border-amber-500/30 text-amber-300"
+                    : "bg-rose-500/10 border border-rose-500/30 text-rose-300"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <Check className="w-4 h-4 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                )}
+                <span>{notification.text}</span>
               </div>
+            )}
 
-              <div>
-                <label className="block text-slate-400 font-medium mb-1">Designation</label>
-                <input
-                  type="text"
-                  value={editFields.designation || ""}
-                  onChange={(e) => setEditFields({ ...editFields, designation: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 font-medium mb-1">Company</label>
-                <input
-                  type="text"
-                  value={editFields.company || ""}
-                  onChange={(e) => setEditFields({ ...editFields, company: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 font-medium mb-1">Website URL</label>
-                <input
-                  type="text"
-                  value={editFields.website || ""}
-                  onChange={(e) => setEditFields({ ...editFields, website: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-400 font-medium mb-1">Address</label>
-                <input
-                  type="text"
-                  value={editFields.address || ""}
-                  onChange={(e) => setEditFields({ ...editFields, address: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-400 font-medium mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={editFields.email || ""}
-                    onChange={(e) => setEditFields({ ...editFields, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 font-medium mb-1">Office Contact</label>
-                  <input
-                    type="text"
-                    value={editFields.office_contact || ""}
-                    onChange={(e) => setEditFields({ ...editFields, office_contact: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              {editingForm.ocr_raw_text && (
-                <div className="mt-4 p-3 bg-slate-950 border border-slate-800/80 rounded-xl">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">
-                    Raw OCR Reference:
+            {/* Scrollable Modal Content */}
+            <div className="overflow-y-auto pr-1 py-4 space-y-6 flex-1 text-xs">
+              {/* 1. TOP SECTION: Original Business Card Image */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex flex-col items-center">
+                <div className="w-full flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                    Original Business Card Image
                   </span>
-                  <div className="text-[11px] font-mono text-slate-400 break-words">
-                    {editingForm.ocr_raw_text}
+                  {activeForm.image_url && (
+                    <a
+                      href={activeForm.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition"
+                    >
+                      <Maximize2 className="w-3 h-3" /> Open Full Res
+                    </a>
+                  )}
+                </div>
+
+                {activeForm.image_url ? (
+                  <div className="w-full h-56 sm:h-72 bg-black/60 rounded-xl border border-slate-800/80 flex items-center justify-center overflow-hidden p-2">
+                    <img
+                      src={activeForm.image_url}
+                      alt={`QRCode - ${activeForm.qr_number} card`}
+                      className="max-h-full max-w-full object-contain rounded-lg shadow-2xl"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-32 bg-slate-900/50 rounded-xl border border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-500">
+                    <AlertCircle className="w-6 h-6 mb-1 text-slate-600" />
+                    <span>No image preview URL recorded for this card</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. MIDDLE SECTION: Original Form Data (Submitted into Portal) */}
+              <div className="bg-slate-950/90 border border-indigo-500/20 rounded-xl p-4 shadow-xl">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Edit3 className="w-4 h-4 text-cyan-400" />
+                    <span className="font-bold text-sm text-white">
+                      Original Form Data (Submitted into Portal)
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-cyan-400/90 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">
+                    Editable by Reviewer
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name || ""}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Designation
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.designation || ""}
+                      onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.company || ""}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Website URL
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.website || ""}
+                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Address (Verbatim, no invented commas)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.address || ""}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email || ""}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">
+                      Office Contact (All Phone Numbers)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.office_contact || ""}
+                      onChange={(e) => setFormData({ ...formData, office_contact: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* 3. BOTTOM SECTION: Extracted Data from Image (AI & OCR Reference) */}
+              <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span className="font-bold text-sm text-slate-200">
+                      Extracted Data from Image (AI & OCR Reference)
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleAskAi}
+                    disabled={isAiLoading}
+                    className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 rounded-lg text-xs font-medium transition flex items-center gap-1.5"
+                  >
+                    <Zap className={`w-3.5 h-3.5 ${isAiLoading ? "animate-spin" : ""}`} />
+                    {isAiLoading ? "Re-Extracting with AI..." : "Re-Check with Groq / AI"}
+                  </button>
+                </div>
+
+                {/* AI Suggestions if generated */}
+                {aiSuggestions && (
+                  <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-amber-300">
+                        ⚡ AI Assistant Fresh Suggestion:
+                      </span>
+                      <button
+                        onClick={() => setFormData({ ...formData, ...aiSuggestions })}
+                        className="px-2 py-0.5 bg-amber-500 text-slate-950 font-bold rounded text-[11px] hover:bg-amber-400 transition"
+                      >
+                        Apply All AI Values
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-amber-200">
+                      <div>Name: {aiSuggestions.name}</div>
+                      <div>Designation: {aiSuggestions.designation}</div>
+                      <div>Company: {aiSuggestions.company}</div>
+                      <div>Website: {aiSuggestions.website}</div>
+                      <div className="sm:col-span-2">Address: {aiSuggestions.address}</div>
+                      <div>Email: {aiSuggestions.email}</div>
+                      <div>Contact: {aiSuggestions.office_contact}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Comparison items with 1-click copy */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
+                  {activeForm.image_data && (
+                    <>
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Name:{" "}
+                          <strong className="text-white">{activeForm.image_data.name || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.name && (
+                          <button
+                            onClick={() => copyExtractedField("name", activeForm.image_data?.name)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Designation:{" "}
+                          <strong className="text-white">{activeForm.image_data.designation || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.designation && (
+                          <button
+                            onClick={() => copyExtractedField("designation", activeForm.image_data?.designation)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Company:{" "}
+                          <strong className="text-white">{activeForm.image_data.company || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.company && (
+                          <button
+                            onClick={() => copyExtractedField("company", activeForm.image_data?.company)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Website:{" "}
+                          <strong className="text-white">{activeForm.image_data.website || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.website && (
+                          <button
+                            onClick={() => copyExtractedField("website", activeForm.image_data?.website)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-2 p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Address:{" "}
+                          <strong className="text-white">{activeForm.image_data.address || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.address && (
+                          <button
+                            onClick={() => copyExtractedField("address", activeForm.image_data?.address)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Email:{" "}
+                          <strong className="text-white">{activeForm.image_data.email || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.email && (
+                          <button
+                            onClick={() => copyExtractedField("email", activeForm.image_data?.email)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-between">
+                        <span className="text-slate-400">
+                          Extracted Contact:{" "}
+                          <strong className="text-white">{activeForm.image_data.office_contact || "—"}</strong>
+                        </span>
+                        {activeForm.image_data.office_contact && (
+                          <button
+                            onClick={() => copyExtractedField("office_contact", activeForm.image_data?.office_contact)}
+                            className="p-1 text-slate-400 hover:text-cyan-400"
+                            title="Copy to form"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Raw OCR text reference */}
+                {activeForm.ocr_raw_text && (
+                  <div className="mt-3 p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-lg">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">
+                      Raw Star-Delimited OCR Text:
+                    </span>
+                    <div className="text-[11px] font-mono text-slate-400 break-words">
+                      {activeForm.ocr_raw_text}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
-              <button
-                onClick={() => setEditingForm(null)}
-                className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-medium rounded-xl hover:bg-slate-700 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                disabled={isSaving}
-                className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold rounded-xl shadow-lg shadow-orange-500/20 transition flex items-center gap-1.5"
-              >
-                {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Edit3 className="w-3.5 h-3.5" />}
-                Submit Update by {userName}
-              </button>
+            {/* Modal Action Footer */}
+            <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={closeVerificationModal}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-medium rounded-xl hover:bg-slate-700 transition"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSaveUpdate}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-cyan-500/20 transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Edit3 className="w-3.5 h-3.5" />}
+                  Save & Update Form &rarr; Next
+                </button>
+
+                <button
+                  onClick={handleVerifyNoErrors}
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  Verify (No Errors) &rarr; Next
+                </button>
+              </div>
             </div>
           </div>
         </div>
