@@ -22,6 +22,8 @@ import {
   Clock,
   ArrowRight,
   Sliders,
+  CheckCheck,
+  Edit3,
 } from "lucide-react";
 
 interface AccessToken {
@@ -49,11 +51,17 @@ export default function AdminPage() {
   const [isAdminAuth, setIsAdminAuth] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>("");
 
+  // Navigation tab in Admin
+  const [adminTab, setAdminTab] = useState<"tokens" | "verified" | "queue">("tokens");
+
   // Tokens management
   const [tokens, setTokens] = useState<AccessToken[]>([]);
   const [newUserName, setNewUserName] = useState<string>("");
   const [isCreatingToken, setIsCreatingToken] = useState<boolean>(false);
   const [copiedToken, setCopiedToken] = useState<string>("");
+
+  // User Verified Forms List
+  const [userVerifiedForms, setUserVerifiedForms] = useState<any[]>([]);
 
   // Fill Queue & Bulk Admin Verification
   const [queue, setQueue] = useState<FillQueueItem[]>([]);
@@ -123,6 +131,13 @@ export default function AdminPage() {
       if (queueData.success) {
         setQueue(queueData.queue);
       }
+
+      // 3. Load User Verified Forms
+      const verifRes = await fetch("/api/forms?limit=100&verificationStatus=user_verified");
+      const verifData = await verifRes.json();
+      if (verifData.success) {
+        setUserVerifiedForms(verifData.data || []);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -148,12 +163,36 @@ export default function AdminPage() {
       if (data.success) {
         setTokens([data.token, ...tokens]);
         setNewUserName("");
-        setActionMessage(`Created Token for ${data.token.user_name}: ${data.token.token}`);
+        const countMsg = data.rebalanced?.perUserCount
+          ? ` (Auto-allocated ~${data.rebalanced.perUserCount} forms each)`
+          : "";
+        setActionMessage(`Created Token for ${data.token.user_name}: ${data.token.token}${countMsg}`);
       }
     } catch (err) {
       console.error(err);
     } finally {
       setIsCreatingToken(false);
+    }
+  };
+
+  const handleRebalanceBatches = async () => {
+    try {
+      const res = await fetch("/api/tokens", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-passkey": passkey,
+        },
+        body: JSON.stringify({ action: "rebalance" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActionMessage(
+          `Rebalanced ${data.totalUnverified} unverified forms equally among ${data.activeUsers?.length} active reviewers (~${data.perUserCount} each).`
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -184,7 +223,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteToken = async (tokenCode: string) => {
-    if (!confirm(`Delete access token ${tokenCode}?`)) return;
+    if (!confirm(`Delete access token ${tokenCode}? This will automatically rebalance remaining batches.`)) return;
     try {
       const res = await fetch(`/api/tokens?token=${tokenCode}`, {
         method: "DELETE",
@@ -193,7 +232,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setTokens((prev) => prev.filter((t) => t.token !== tokenCode));
-        setActionMessage(`Deleted token ${tokenCode}`);
+        setActionMessage(`Deleted token ${tokenCode}. Batches re-allocated automatically.`);
       }
     } catch (err) {
       console.error(err);
@@ -213,25 +252,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setActionMessage(data.message);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleVerifyAllUserUpdated = async () => {
-    try {
-      const res = await fetch("/api/admin/verify-all", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-passkey": passkey,
-        },
-        body: JSON.stringify({ action: "admin_verify_all_user_updated" }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setActionMessage(data.message);
+        loadAdminData(passkey);
       }
     } catch (err) {
       console.error(err);
@@ -286,8 +307,7 @@ export default function AdminPage() {
       log(`[AUTO-FILL] Typing verified fields into Portal Inputs...`);
       log(`[[OK]] All 7/7 input elements confirmed populated.`);
 
-      // Random wait simulation for admin review
-      const randomWait = Math.floor(Math.random() * 4) + 4; // 4 to 7 seconds
+      const randomWait = Math.floor(Math.random() * 4) + 4;
       log(`[REVIEW TIMER] Random wait ${randomWait}s for Admin verification before clicking Submit...`);
 
       let rem = randomWait;
@@ -311,7 +331,7 @@ export default function AdminPage() {
   // Locked Gate
   if (!isAdminAuth) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-slate-950">
         <div className="w-full max-w-sm p-8 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-xl">
           <div className="flex justify-center mb-6">
             <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-2xl">
@@ -361,7 +381,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       {/* Top Navbar */}
       <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -378,15 +398,14 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <a
               href="/"
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-xl transition"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition"
             >
-              View Verification Portal
+              &larr; Reviewer View
             </a>
-
             <button
               onClick={handleAdminLogout}
               className="p-2 text-slate-400 hover:text-rose-400 transition"
-              title="Lock Admin"
+              title="Logout Admin"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -394,10 +413,10 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+      {/* Main Admin Body */}
+      <main className="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
         {actionMessage && (
-          <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs rounded-2xl flex items-center justify-between">
+          <div className="mb-6 p-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded-xl text-xs flex items-center justify-between">
             <span>{actionMessage}</span>
             <button onClick={() => setActionMessage("")} className="text-slate-400 hover:text-white">
               &times;
@@ -405,251 +424,359 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* 1. Quick Batch Operations */}
-        <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-          <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-indigo-400" />
-            Admin Batch Verification Actions
-          </h2>
-          <p className="text-xs text-slate-400 mb-6">
-            Review and mark all submitted user forms as verified at a single click.
-          </p>
+        {/* 3 Main Admin Navigation Tabs */}
+        <div className="flex items-center gap-2 mb-8 border-b border-slate-800 pb-3">
+          <button
+            onClick={() => setAdminTab("tokens")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
+              adminTab === "tokens"
+                ? "bg-rose-600 text-white shadow-lg shadow-rose-600/25"
+                : "bg-slate-900 text-slate-400 hover:text-white"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Tokens & Dynamic Batch Allocation ({tokens.length})
+          </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button
-              onClick={handleVerifyAllUserVerified}
-              className="p-4 bg-emerald-950/20 border border-emerald-800/40 hover:bg-emerald-950/40 rounded-xl text-left transition"
-            >
-              <div className="text-xs text-emerald-400 font-semibold mb-1">
-                Verify All &quot;User-Verified&quot;
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Batch promote all forms checked by friends to Admin Verified status.
-              </div>
-            </button>
+          <button
+            onClick={() => setAdminTab("verified")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
+              adminTab === "verified"
+                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25"
+                : "bg-slate-900 text-slate-400 hover:text-white"
+            }`}
+          >
+            <CheckCheck className="w-4 h-4" />
+            User Verified Forms ({userVerifiedForms.length})
+          </button>
 
-            <button
-              onClick={handleVerifyAllUserUpdated}
-              className="p-4 bg-amber-950/20 border border-amber-800/40 hover:bg-amber-950/40 rounded-xl text-left transition"
-            >
-              <div className="text-xs text-amber-400 font-semibold mb-1">
-                Verify All &quot;User-Updated&quot;
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Accept all corrected values submitted by users.
-              </div>
-            </button>
+          <button
+            onClick={() => setAdminTab("queue")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition ${
+              adminTab === "queue"
+                ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/25"
+                : "bg-slate-900 text-slate-400 hover:text-white"
+            }`}
+          >
+            <Terminal className="w-4 h-4" />
+            Auto-Fill Portal Queue ({queue.length})
+          </button>
+        </div>
 
-            <button
-              onClick={() => runAutoFillSimulation(queue)}
-              disabled={isRunningAutoFill || queue.length === 0}
-              className="p-4 bg-gradient-to-br from-indigo-950/40 to-cyan-950/40 border border-indigo-700/50 hover:border-cyan-500/50 rounded-xl text-left transition disabled:opacity-50"
-            >
-              <div className="text-xs text-cyan-300 font-semibold mb-1 flex items-center gap-1.5">
-                <Play className="w-3.5 h-3.5 text-cyan-400" />
-                Launch Portal Auto-Fill ({queue.length})
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Auto-fill portal with user-updated values with random wait intervals.
-              </div>
-            </button>
-          </div>
-        </section>
-
-        {/* 2. Terminal Live Stream */}
-        {isRunningAutoFill && (
-          <section className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <div className="flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-mono font-bold text-slate-200">
-                  Live Auto-Fill Execution Stream
-                </span>
-              </div>
-              {countdown > 0 && (
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs rounded-xl font-mono">
-                  <Clock className="w-3.5 h-3.5 animate-spin" />
-                  Admin Review Window: {countdown}s remaining...
+        {/* ======================================================== */}
+        {/* TAB 1: TOKENS & DYNAMIC BATCH ALLOCATION */}
+        {/* ======================================================== */}
+        {adminTab === "tokens" && (
+          <div className="space-y-6">
+            {/* Create New Token Card */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="font-bold text-sm text-white">Generate Reviewer Access Token</h3>
+                  <p className="text-xs text-slate-400">
+                    Adding a new reviewer will automatically rebalance unverified forms across all active users.
+                  </p>
                 </div>
-              )}
+
+                <button
+                  onClick={handleRebalanceBatches}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl border border-slate-700 transition flex items-center gap-1.5 self-start"
+                >
+                  <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                  Rebalance Batches Evenly
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateToken} className="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="Friend / Reviewer Name (e.g. John, Sarah)"
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  className="flex-1 px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs font-mono focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isCreatingToken}
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-rose-600/20 transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <Plus className="w-4 h-4" />
+                  Generate Token
+                </button>
+              </form>
             </div>
 
-            <div className="bg-black/90 p-4 rounded-xl font-mono text-xs text-emerald-400 space-y-1 max-h-80 overflow-y-auto">
-              {terminalLogs.map((logLine, i) => (
-                <div key={i}>{logLine}</div>
-              ))}
+            {/* Tokens Table */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                  <Key className="w-4 h-4 text-rose-400" />
+                  Active Reviewer Tokens ({tokens.length})
+                </h3>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">Reviewer</th>
+                      <th className="p-3.5">One-Time Token</th>
+                      <th className="p-3.5">Device Binding</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5">Created</th>
+                      <th className="p-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                    {tokens.map((t) => (
+                      <tr key={t._id} className="hover:bg-slate-800/30 transition">
+                        <td className="p-3.5 font-bold text-white font-sans">{t.user_name}</td>
+                        <td className="p-3.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-rose-300 font-semibold">{t.token}</span>
+                            <button
+                              onClick={() => copyToClipboard(t.token)}
+                              className="text-slate-500 hover:text-white"
+                              title="Copy Token"
+                            >
+                              {copiedToken === t.token ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="p-3.5">
+                          {t.device_id ? (
+                            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-[10px]">
+                              Locked ({t.device_id.substring(0, 8)}...)
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-slate-800 text-slate-400 rounded-md text-[10px]">
+                              Unused (Pending 1st Login)
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[10px] ${
+                              t.is_active
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            }`}
+                          >
+                            {t.is_active ? "Active" : "Disabled"}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-slate-400 text-[11px] font-sans">
+                          {new Date(t.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="p-3.5 text-right font-sans">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleRegenerateToken(t.token)}
+                              className="p-1.5 text-slate-400 hover:text-cyan-400"
+                              title="Regenerate Token"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteToken(t.token)}
+                              className="p-1.5 text-slate-400 hover:text-rose-400"
+                              title="Delete Token"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </section>
+          </div>
         )}
 
-        {/* 3. User Permission & One-Time Token Management */}
-        <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Users className="w-4 h-4 text-indigo-400" />
-                Friend & Reviewer Access Tokens
-              </h2>
-              <p className="text-xs text-slate-400">
-                Issue one-time tokens for friends. The token locks to their device and will never ask again.
-              </p>
-            </div>
+        {/* ======================================================== */}
+        {/* TAB 2: USER VERIFIED FORMS ("Verified by {user}") */}
+        {/* ======================================================== */}
+        {adminTab === "verified" && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-sm text-white">Forms Verified by Users</h3>
+                <p className="text-xs text-slate-400">
+                  Reviewers have confirmed these forms match the original business cards with zero errors.
+                </p>
+              </div>
 
-            {/* Generate Token Form */}
-            <form onSubmit={handleCreateToken} className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Friend's Name (e.g. Rahul)"
-                value={newUserName}
-                onChange={(e) => setNewUserName(e.target.value)}
-                className="px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
               <button
-                type="submit"
-                disabled={isCreatingToken}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center gap-1.5 shrink-0"
+                onClick={handleVerifyAllUserVerified}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5 shrink-0"
               >
-                <Plus className="w-3.5 h-3.5" />
-                Generate Token
+                <CheckCheck className="w-4 h-4" />
+                Admin Approve All User-Verified ({userVerifiedForms.length})
               </button>
-            </form>
-          </div>
-
-          {/* Tokens Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/60 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-4">User Name</th>
-                  <th className="py-3 px-4">One-Time Token</th>
-                  <th className="py-3 px-4">Device Lock</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Last Active</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {tokens.map((tok) => (
-                  <tr key={tok._id || tok.token} className="hover:bg-slate-800/30 transition">
-                    <td className="py-3 px-4 font-semibold text-white">{tok.user_name}</td>
-                    <td className="py-3 px-4 font-mono text-indigo-300 flex items-center gap-2">
-                      <span>{tok.token}</span>
-                      <button
-                        onClick={() => copyToClipboard(tok.token)}
-                        className="text-slate-500 hover:text-slate-300"
-                        title="Copy Token"
-                      >
-                        {copiedToken === tok.token ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">
-                      {tok.device_id ? (
-                        <span className="text-emerald-400 font-medium">Locked: {tok.device_id}</span>
-                      ) : (
-                        <span className="text-slate-500">Unused (Awaiting first login)</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {tok.is_active ? (
-                        <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px]">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-full text-[10px]">
-                          Revoked
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-slate-500">
-                      {tok.last_used_at ? new Date(tok.last_used_at).toLocaleDateString() : "Never"}
-                    </td>
-                    <td className="py-3 px-4 text-right space-x-2">
-                      <button
-                        onClick={() => handleRegenerateToken(tok.token)}
-                        className="p-1.5 text-slate-400 hover:text-cyan-400 transition"
-                        title="Regenerate Token & Reset Device"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteToken(tok.token)}
-                        className="p-1.5 text-slate-400 hover:text-rose-400 transition"
-                        title="Delete User Token"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* 4. Pending Portal Auto-Fill Queue */}
-        <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <ListOrdered className="w-4 h-4 text-amber-400" />
-                Updated Forms Auto-Fill Queue ({queue.length})
-              </h2>
-              <p className="text-xs text-slate-400">
-                Forms edited by your friends are queued here to update the portal original forms.
-              </p>
             </div>
 
-            <button
-              onClick={() => runAutoFillSimulation(queue)}
-              disabled={queue.length === 0 || isRunningAutoFill}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium text-xs rounded-xl shadow-lg shadow-orange-500/20 transition flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <Play className="w-3.5 h-3.5" />
-              Auto-Fill All Updated ({queue.length})
-            </button>
-          </div>
-
-          {queue.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl text-xs">
-              No updated forms currently waiting in the Auto-Fill queue.
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">QR #</th>
+                      <th className="p-3.5">Person Name</th>
+                      <th className="p-3.5">Company</th>
+                      <th className="p-3.5">Verified By</th>
+                      <th className="p-3.5">Verified At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {userVerifiedForms.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-slate-500">
+                          No forms currently marked as user-verified.
+                        </td>
+                      </tr>
+                    ) : (
+                      userVerifiedForms.map((form) => (
+                        <tr key={form._id} className="hover:bg-slate-800/30 transition">
+                          <td className="p-3.5 font-mono font-bold text-indigo-300">
+                            #{form.qr_number}
+                          </td>
+                          <td className="p-3.5 font-medium text-white">{form.name}</td>
+                          <td className="p-3.5 text-slate-300">{form.company}</td>
+                          <td className="p-3.5">
+                            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-lg text-[11px] font-semibold flex items-center gap-1 w-fit">
+                              <Check className="w-3.5 h-3.5" />
+                              Verified by {form.verified_by || "User"}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-slate-400 text-[11px]">
+                            {form.verified_at ? new Date(form.verified_at).toLocaleString() : "—"}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {queue.map((item) => (
-                <div
-                  key={item._id || item.qr_number}
-                  className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl text-xs space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-indigo-400 font-mono">
-                      QR #{item.qr_number}
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 3: USER UPDATED FORMS & AUTO-FILL QUEUE */}
+        {/* ======================================================== */}
+        {adminTab === "queue" && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-sm text-white">Updated Forms Auto-Fill Queue</h3>
+                <p className="text-xs text-slate-400">
+                  {queue.length} forms updated by reviewers waiting to be pushed to the live website.
+                </p>
+              </div>
+
+              <button
+                onClick={() => runAutoFillSimulation(queue)}
+                disabled={isRunningAutoFill || queue.length === 0}
+                className="px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-cyan-600/30 transition flex items-center gap-2 disabled:opacity-50"
+              >
+                {isRunningAutoFill ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Auto-Filling ({countdown}s review wait)...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    Launch Portal Auto-Fill ({queue.length})
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Live Terminal Log Viewer */}
+            {terminalLogs.length > 0 && (
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 font-mono text-xs shadow-2xl">
+                <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2 text-cyan-400 font-bold">
+                    <Terminal className="w-4 h-4" />
+                    Portal Auto-Fill Live Output
+                  </div>
+                  {countdown > 0 && (
+                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded text-[11px]">
+                      Inspection Timer: {countdown}s
                     </span>
-                    <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                      Updated by {item.updated_by}
-                    </span>
-                  </div>
-                  <div className="text-slate-300">
-                    <strong className="text-white">{item.updated_fields?.name}</strong> &bull;{" "}
-                    {item.updated_fields?.company}
-                  </div>
-                  <div className="text-slate-400 font-mono text-[11px] truncate">
-                    {item.updated_fields?.designation}
-                  </div>
-                  <div className="text-emerald-400 font-mono text-[11px]">
-                    {item.updated_fields?.office_contact}
-                  </div>
+                  )}
                 </div>
-              ))}
+                <div className="max-h-64 overflow-y-auto space-y-1 text-slate-300">
+                  {terminalLogs.map((log, i) => (
+                    <div key={i} className="whitespace-pre-wrap">
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Queue Table */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950/60 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">QR #</th>
+                      <th className="p-3.5">Updated By</th>
+                      <th className="p-3.5">Queued At</th>
+                      <th className="p-3.5">Updated Fields</th>
+                      <th className="p-3.5">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {queue.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-slate-500">
+                          Queue is currently empty.
+                        </td>
+                      </tr>
+                    ) : (
+                      queue.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-800/30 transition">
+                          <td className="p-3.5 font-mono font-bold text-cyan-300">
+                            #{item.qr_number}
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-lg text-[11px] font-semibold flex items-center gap-1 w-fit">
+                              <Edit3 className="w-3.5 h-3.5" />
+                              Updated by {item.updated_by}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-slate-400 text-[11px]">
+                            {new Date(item.queued_at).toLocaleString()}
+                          </td>
+                          <td className="p-3.5 text-slate-300 font-mono text-[11px] truncate max-w-xs">
+                            {item.updated_fields?.name} | {item.updated_fields?.company}
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded text-[10px]">
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-        </section>
+          </div>
+        )}
       </main>
     </div>
   );
 }
-

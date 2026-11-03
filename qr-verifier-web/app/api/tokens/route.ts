@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { randomBytes } from "crypto";
+import { rebalanceAssignments } from "@/lib/rebalancer";
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,7 +49,15 @@ export async function POST(req: NextRequest) {
     };
 
     await db.collection("access_tokens").insertOne(doc);
-    return NextResponse.json({ success: true, token: doc });
+
+    // Automatically rebalance batch partitions across all active users
+    const rebalanceResult = await rebalanceAssignments(db);
+
+    return NextResponse.json({
+      success: true,
+      token: doc,
+      rebalanced: rebalanceResult,
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -84,6 +93,7 @@ export async function PATCH(req: NextRequest) {
           { token },
           { $set: { is_active: !existing.is_active } }
         );
+        await rebalanceAssignments(db);
       }
       return NextResponse.json({ success: true });
     } else if (action === "reset_device") {
@@ -92,6 +102,9 @@ export async function PATCH(req: NextRequest) {
         { $set: { device_id: null } }
       );
       return NextResponse.json({ success: true, message: "Device binding reset" });
+    } else if (action === "rebalance") {
+      const res = await rebalanceAssignments(db);
+      return NextResponse.json({ success: true, ...res });
     }
 
     return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
@@ -115,9 +128,12 @@ export async function DELETE(req: NextRequest) {
 
     const { db } = await connectToDatabase();
     await db.collection("access_tokens").deleteOne({ token });
-    return NextResponse.json({ success: true, message: "Token deleted successfully" });
+
+    // Automatically rebalance partitions among remaining active users
+    await rebalanceAssignments(db);
+
+    return NextResponse.json({ success: true, message: "Token deleted and batch rebalanced" });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-

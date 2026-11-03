@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { qrNumber: st
       return NextResponse.json({ success: false, error: "Form not found" }, { status: 404 });
     }
 
-    // Also look up next unverified form
+    // Look up next unverified form
     const nextUnverified = await db.collection("qr_forms").findOne(
       {
         qr_number: { $gt: num },
@@ -92,30 +92,52 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
       return NextResponse.json({ success: true });
     }
 
-    // Helper: Find next unverified form
+    // Helper: Find next unverified form for this user (or overflow pool)
     const findNextUnverified = async () => {
-      const nextDoc = await db.collection("qr_forms").findOne(
+      // 1. Try next form assigned to this user
+      if (uName) {
+        const nextAssigned = await db.collection("qr_forms").findOne(
+          {
+            qr_number: { $gt: num },
+            assigned_to: uName,
+            verification_status: "unverified",
+          },
+          { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
+        );
+        if (nextAssigned) return nextAssigned.qr_number;
+
+        // Wrap around inside user's assignment
+        const firstAssigned = await db.collection("qr_forms").findOne(
+          {
+            assigned_to: uName,
+            verification_status: "unverified",
+          },
+          { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
+        );
+        if (firstAssigned) return firstAssigned.qr_number;
+      }
+
+      // 2. If user completed their batch, steal work from global unverified queue
+      const nextGlobal = await db.collection("qr_forms").findOne(
         {
           qr_number: { $gt: num },
           verification_status: "unverified",
         },
         { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
       );
-      if (nextDoc) return nextDoc.qr_number;
+      if (nextGlobal) return nextGlobal.qr_number;
 
-      // Wrap around to start if none ahead
-      const firstDoc = await db.collection("qr_forms").findOne(
+      const firstGlobal = await db.collection("qr_forms").findOne(
         {
           verification_status: "unverified",
         },
         { sort: { qr_number: 1 }, projection: { qr_number: 1 } }
       );
-      return firstDoc?.qr_number || null;
+      return firstGlobal?.qr_number || null;
     };
 
     // 3. Verify No Errors Action
     if (action === "verify_no_errors") {
-      // Concurrency check: If another user already updated or verified this form
       const alreadyHandledByOther =
         (existing.verification_status === "user_verified" && existing.verified_by !== uName) ||
         (existing.verification_status === "user_updated" && existing.updated_by !== uName) ||
@@ -163,7 +185,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
         return NextResponse.json({ success: false, error: "Missing updated fields" }, { status: 400 });
       }
 
-      // Concurrency check
       const alreadyUpdatedByOther =
         (existing.verification_status === "user_updated" && existing.updated_by !== uName) ||
         existing.verification_status === "admin_verified";
@@ -192,7 +213,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { qrNumber: 
         updated_by: uName,
         updated_at: now,
         version: (existing.version || 1) + 1,
-        // Preserve previous snapshot
         previous_data: {
           name: existing.name,
           designation: existing.designation,
