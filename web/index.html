@@ -402,7 +402,41 @@
               <span class="stat-hint">Attention / discrepancy hold</span>
             </div>
           </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">✓</div>
+            <div class="stat-data">
+              <span class="stat-label">Verified by Admin</span>
+              <span class="stat-value" id="verifyStatAdminVerified">0</span>
+              <span class="stat-hint">Excluded from future verification</span>
+            </div>
+          </div>
         </div>
+
+        <section class="codex-live-panel" aria-labelledby="codexLiveTitle">
+          <div class="codex-live-header">
+            <div>
+              <span class="ai-badge-pill">AI Live</span>
+              <h3 id="codexLiveTitle">Modified by Codex / AI Live</h3>
+              <p>Active safeguards used while reading card images and preparing verification evidence.</p>
+            </div>
+            <span class="codex-live-status">Monitoring enabled</span>
+          </div>
+          <div class="codex-live-grid">
+            <article>
+              <strong>Star boundaries first</strong>
+              <span>When OCR returns seven non-empty fields separated by <code>*</code>, their left-to-right order defines Name, Designation, Company, Website, Address, Email, and Office Contact.</span>
+            </article>
+            <article>
+              <strong>Small-text recovery</strong>
+              <span>Original, padded, thresholded, and 2× OCR passes are compared. Valid email, phone, ZIP, website, and complete star layout evidence choose the best pass.</span>
+            </article>
+            <article>
+              <strong>Typed correction guard</strong>
+              <span>Consensus may correct common OCR glyph errors inside the same field, such as <code>cisc0.com</code> to <code>cisco.com</code>, without moving text across field boundaries.</span>
+            </article>
+          </div>
+          <p class="codex-live-footnote">This panel documents the live extraction safeguards. Resolved and Blocked remain the review status of each submitted form.</p>
+        </section>
 
         <div class="card-header mt-4">
           <div class="header-left">
@@ -434,6 +468,7 @@
             <button class="filter-chip active" data-verify-filter="">All Verified</button>
             <button class="filter-chip" data-verify-filter="blocked">Blocked Only</button>
             <button class="filter-chip" data-verify-filter="resolved">Resolved / 100%</button>
+            <button class="filter-chip" data-verify-filter="admin_verified">Verified by Admin</button>
           </div>
 
 
@@ -582,8 +617,19 @@
             </svg>
             Blocked
           </button>
+          <button id="btnModalAdminVerifiedTop" class="btn btn-sm btn-admin-verified">Verified by Admin</button>
           <button class="modal-close-btn" id="verifyModalCloseBtn">&times;</button>
         </div>
+      </div>
+
+      <div class="verify-modal-navigation" aria-label="Verification record navigation">
+        <button id="btnVerifyPrevious" class="btn btn-secondary" type="button" disabled>
+          &larr; Previous
+        </button>
+        <span id="verifyModalPosition" class="text-sm text-muted" aria-live="polite">1 of 1</span>
+        <button id="btnVerifyNext" class="btn btn-secondary" type="button" disabled>
+          Next &rarr;
+        </button>
       </div>
 
       <div class="modal-body">
@@ -598,31 +644,29 @@
           </div>
         </div>
 
-        <!-- Raw OCR Text Box -->
+        <!-- Keep the source image first, then show portal and extracted values side by side. -->
+        <div class="verify-data-comparison">
+          <section class="verify-data-panel">
+            <div class="verify-data-panel-header">
+              <h4>Portal Form Data</h4>
+              <span class="text-xs text-muted">Editable before submission</span>
+            </div>
+            <div id="verifyModalPortalFields" class="verify-field-list"></div>
+          </section>
+
+          <section class="verify-data-panel verify-extracted-panel">
+            <div class="verify-data-panel-header">
+              <h4>Extracted from Card</h4>
+              <span class="text-xs text-muted">Image ground truth</span>
+            </div>
+            <div id="verifyModalExtractedFields" class="verify-field-list"></div>
+          </section>
+        </div>
+
+        <!-- Raw OCR is available below the side-by-side field comparison. -->
         <div class="raw-ocr-box mt-3">
           <span class="text-xs text-muted font-bold uppercase mb-1 block">Raw 3-Pass OCR Text Extracted from Card</span>
           <pre id="verifyModalRawOcr" class="code-preview text-xs"></pre>
-        </div>
-
-        <!-- Comparison Table -->
-        <div class="mt-4">
-          <h4 class="mb-2 text-sm font-bold uppercase text-muted">7-Field Verbatim Comparison (Portal Submission vs Image Ground Truth)</h4>
-          <div class="table-container">
-            <table class="data-table verify-diff-table">
-              <thead>
-                <tr>
-                  <th style="width: 130px;">Field</th>
-                  <th>Website Submitted Data</th>
-                  <th>Original Card Image Ground Truth</th>
-                  <th style="width: 90px; text-align: center;">Match %</th>
-                  <th style="width: 100px; text-align: center;">Status</th>
-                </tr>
-              </thead>
-              <tbody id="verifyModalFieldsBody">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
         </div>
 
         <!-- AI Verification Note -->
@@ -658,6 +702,13 @@
             </svg>
             Mark as Blocked
           </button>
+          <button id="btnModalAdminVerified" class="btn btn-admin-verified">Mark Verified by Admin</button>
+        </div>
+        <div class="verify-fix-actions">
+          <button id="btnModalFixForm" class="btn btn-primary" type="button">
+            Fix &amp; Submit to Portal
+          </button>
+          <span id="verifyFixStatus" class="text-sm text-muted" role="status" aria-live="polite"></span>
         </div>
         <button class="btn btn-secondary" id="verifyModalCloseBtnFooter">Close Comparison</button>
       </div>

@@ -2,7 +2,17 @@
 .env
 *.env
 .env.*
+**/.env
+**/.env.*
+**/*.env
 !.env.example
+!**/.env.example
+
+# Node dependencies & Next.js builds
+node_modules/
+**/node_modules/
+.next/
+**/.next/
 
 # Python cache & build
 __pycache__/

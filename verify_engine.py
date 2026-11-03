@@ -26,6 +26,7 @@ from data_entry_automation import (
     preprocess_image_with_padding,
     REQUIRED_FIELDS
 )
+from langchain_extractor import extract_with_langchain_ensemble
 
 ENV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(ENV_PATH)
@@ -130,6 +131,15 @@ def extract_fields_with_ai(raw_ocr_text: str) -> dict:
         data = parse_fallback_regex(raw_ocr_text)
         return refine_extracted_data(data, raw_ocr_text)
 
+    # 1. Primary: LangChain Multi-Model Ensemble with Majority Voting
+    try:
+        data, diag = extract_with_langchain_ensemble(raw_ocr_text, max_models=5)
+        if data and any(data.get(f) for f in REQUIRED_FIELDS):
+            print(f"[Verification AI] Extracted via LangChain Ensemble ({len(diag.get('participating_models', []))} models agree).")
+            return refine_extracted_data(data, raw_ocr_text)
+    except Exception as e:
+        print(f"[Verification AI] LangChain note: {e}. Falling back to direct models...")
+
     system_instruction = (
         "You are an expert, meticulous AI verification assistant for business card data extraction.\n"
         "Your task is to extract exactly 7 fields verbatim from the OCR text of a business card.\n"
@@ -146,7 +156,7 @@ def extract_fields_with_ai(raw_ocr_text: str) -> dict:
 
     user_prompt = f"Raw Business Card OCR Text:\n{raw_ocr_text}\n\nExtract and correct all 7 fields into valid JSON."
 
-    # 1. Try Groq
+    # 2. Try Groq
     if GROQ_API_KEY:
         groq_models = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
         for model in groq_models:
@@ -293,7 +303,7 @@ class VerificationEngine:
                 self.cancel_requested = True
                 self.status["message"] = "Cancelling verification..."
 
-    def start_verification_async(self, start_qr: int = 1, end_qr: int = None):
+    def start_verification_async(self, start_qr: int = 1, end_qr: int = None, qr_numbers=None):
         """Spawns verification in a background worker thread."""
         with self.lock:
             if self.is_running:
@@ -302,18 +312,23 @@ class VerificationEngine:
             self.cancel_requested = False
             self.status["running"] = True
             self.status["message"] = "Starting verification worker..."
+            self.status["total"] = 0
             self.status["processed"] = 0
             self.status["percent"] = 0.0
+            self.status["current_qr"] = 0
+            self.status["current_label"] = ""
+            self.status["last_verified"] = None
+            self.status["errors"] = []
 
         thread = threading.Thread(
             target=self._run_verification_job,
-            args=(start_qr, end_qr),
+            args=(start_qr, end_qr, qr_numbers),
             daemon=True
         )
         thread.start()
         return True, "Verification started in background."
 
-    def _run_verification_job(self, start_qr: int = 1, end_qr: int = None):
+    def _run_verification_job(self, start_qr: int = 1, end_qr: int = None, qr_numbers=None):
         driver = None
         try:
             with self.lock:
@@ -347,6 +362,7 @@ class VerificationEngine:
             # 3. Read all options from select_data
             options_els = driver.find_elements(By.XPATH, "//select[@id='select_data']/option")
             submitted_options = []
+            requested_qrs = set(int(qr) for qr in qr_numbers) if qr_numbers is not None else None
 
             for opt in options_els:
                 text = opt.text.strip()
@@ -356,6 +372,9 @@ class VerificationEngine:
                 if not m or not val:
                     continue
                 num = int(m.group(0))
+
+                if requested_qrs is not None and num not in requested_qrs:
+                    continue
 
                 # Check range constraints
                 if num < start_qr:
@@ -371,6 +390,23 @@ class VerificationEngine:
                     "val": val,
                     "is_green": is_green
                 })
+
+            # An administrator's decision is final: never spend another OCR/API
+            # verification run on QRs explicitly marked as admin verified.
+            admin_verified_qrs = {
+                record["qr_number"]
+                for record in db_manager.get_verification_records(filter_status="admin_verified")
+            }
+            with db_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT qr_number FROM admin_verified_qrs")
+                admin_verified_qrs.update(row[0] for row in cursor.fetchall())
+            if admin_verified_qrs:
+                before_count = len(submitted_options)
+                submitted_options = [item for item in submitted_options if item["qr_number"] not in admin_verified_qrs]
+                skipped_count = before_count - len(submitted_options)
+                if skipped_count:
+                    print(f"[VERIFY] Skipping {skipped_count} QR(s) already verified by an administrator.")
 
             total = len(submitted_options)
             with self.lock:

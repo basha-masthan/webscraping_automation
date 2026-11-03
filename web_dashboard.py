@@ -11,6 +11,7 @@ from urllib.parse import urlparse, parse_qs
 
 import db_manager
 import verify_engine
+import portal_form_fixer
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 
@@ -150,6 +151,16 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             self.send_json(progress)
             return
 
+        # 4f. API: Portal form correction progress
+        if path == "/api/fix-form/status":
+            job_id = query.get("id", [""])[0]
+            job = portal_form_fixer.get_job(job_id)
+            if job:
+                self.send_json(job)
+            else:
+                self.send_json({"error": "Correction job not found"}, status_code=404)
+            return
+
 
         # 5. API: Export Data (CSV or JSON)
         if path == "/api/export":
@@ -263,8 +274,41 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             end_qr = body_data.get("end_qr")
             if end_qr:
                 end_qr = int(end_qr)
-            ok, msg = verify_engine.engine_instance.start_verification_async(start_qr=start_qr, end_qr=end_qr)
+            qr_numbers = body_data.get("qr_numbers")
+            if qr_numbers is not None:
+                if not isinstance(qr_numbers, list):
+                    self.send_json({"error": "qr_numbers must be a list"}, status_code=400)
+                    return
+                try:
+                    qr_numbers = [int(qr) for qr in qr_numbers]
+                except (TypeError, ValueError):
+                    self.send_json({"error": "qr_numbers must contain only integers"}, status_code=400)
+                    return
+            ok, msg = verify_engine.engine_instance.start_verification_async(
+                start_qr=start_qr, end_qr=end_qr, qr_numbers=qr_numbers
+            )
             self.send_json({"success": ok, "message": msg})
+            return
+
+        # 6b. API: Submit corrected verification data to the portal
+        if path == "/api/fix-form":
+            try:
+                qr_number = int(body_data.get("qr_number", 0))
+            except (TypeError, ValueError):
+                self.send_json({"error": "Invalid qr_number"}, status_code=400)
+                return
+            form_data = body_data.get("data")
+            if qr_number < 1 or not isinstance(form_data, dict):
+                self.send_json({"error": "A valid qr_number and edited data are required"}, status_code=400)
+                return
+            if not db_manager.get_single_verification(qr_number):
+                self.send_json({"error": "Verification record not found"}, status_code=404)
+                return
+            job_id, message = portal_form_fixer.start_fix(qr_number, form_data)
+            if not job_id:
+                self.send_json({"error": message}, status_code=400)
+                return
+            self.send_json({"success": True, "job_id": job_id, "message": message}, status_code=202)
             return
 
         # 7. API: Stop Verification
@@ -273,15 +317,15 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             self.send_json({"success": True, "message": "Verification stop requested."})
             return
 
-        # 8. API: Update Verification Status (Resolved / Blocked)
+        # 8. API: Update Verification Status
         if path == "/api/verify/update-status":
             qr_number = body_data.get("qr_number")
             new_status = str(body_data.get("status", "")).strip().lower()
-            if qr_number and new_status in ("resolved", "blocked"):
+            if qr_number and new_status in ("resolved", "blocked", "admin_verified"):
                 ok = db_manager.update_verification_status(int(qr_number), new_status)
                 self.send_json({"success": ok, "status": new_status})
             else:
-                self.send_json({"error": "Invalid qr_number or status (must be 'resolved' or 'blocked')"}, status_code=400)
+                self.send_json({"error": "Invalid qr_number or status"}, status_code=400)
             return
 
         self.send_json({"error": "Endpoint not found"}, status_code=404)

@@ -1,0 +1,4169 @@
+{
+  "company_data": {
+    "corelogic": {
+      "canonical_name": "Corelogic",
+      "addresses": [
+        "40 Pacifica, Suite 900 Irvine CA USA 92618"
+      ],
+      "email_domains": [
+        "corelogic.com"
+      ],
+      "phones": [
+        "(714) 250-6400 /(949) 214-1000",
+        "(714) 250-6400 / (949) 214-1000"
+      ],
+      "websites": [
+        "www.corelogic.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Pavan Raviprolu",
+        "Donald Rohkar"
+      ]
+    },
+    "cloudflare inc": {
+      "canonical_name": "Cloudflare Inc",
+      "addresses": [
+        "San Francisco, California USA",
+        "101 Townsend St San Francisco CA USA 94107"
+      ],
+      "email_domains": [
+        "cloudflare.com"
+      ],
+      "phones": [
+        "( (650) 319-8930",
+        "(650) 319-8930"
+      ],
+      "websites": [
+        "www.cloudflare.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Lakshman Manoharan",
+        "Nick Simmons"
+      ]
+    },
+    "optimal blue": {
+      "canonical_name": "Optimal Blue",
+      "addresses": [
+        "5340 Legacy Drive Building 2, 2nd Floor Plano TX USA 75024"
+      ],
+      "email_domains": [
+        "optimalblue.com"
+      ],
+      "phones": [
+        "(972) 781-0200"
+      ],
+      "websites": [
+        "https://www2.optimalblue.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Elis Leach"
+      ]
+    },
+    "sap corporation": {
+      "canonical_name": "SAP Corporation",
+      "addresses": [
+        "3999 West Chester Pike Newtown Square PA USA 19073"
+      ],
+      "email_domains": [
+        "sap.com"
+      ],
+      "phones": [
+        "(610) 661-1000"
+      ],
+      "websites": [
+        "http://www.sap.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Hermann Schuster",
+        "Prashant Bhagat"
+      ]
+    },
+    "plaid technologies": {
+      "canonical_name": "Plaid Technologies",
+      "addresses": [
+        "25 Maiden Lane / P.O. Box 636, San Francisco CA USA 94108"
+      ],
+      "email_domains": [
+        "plaid.com"
+      ],
+      "phones": [
+        "(415) 318-9718"
+      ],
+      "websites": [
+        "https://plaid.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Yang Zhao"
+      ]
+    },
+    "interos inc (interos.ai)": {
+      "canonical_name": "Interos Inc (interos.ai)",
+      "addresses": [
+        "8200 Greensboro Dr. Ste. 900 Mc Lean VA USA 22102"
+      ],
+      "email_domains": [
+        "interos.ai"
+      ],
+      "phones": [
+        "(703) 677-3135"
+      ],
+      "websites": [
+        "https://www.interos.ai"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Carr Phillips",
+        "Jody Powell"
+      ]
+    },
+    "verkada inc": {
+      "canonical_name": "Verkada Inc",
+      "addresses": [
+        "405 E 4th Ave, San Mateo, CA USA 94401"
+      ],
+      "email_domains": [
+        "verkada.com"
+      ],
+      "phones": [
+        "(650) 514-2500"
+      ],
+      "websites": [
+        "https://www.verkada.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "James Ren"
+      ]
+    },
+    "hashicorp": {
+      "canonical_name": "HashiCorp",
+      "addresses": [
+        "101 Second St., Ste.575 San Francisco CA USA 94105",
+        "101 Second St., Ste. 575 San Francisco CA USA 94105"
+      ],
+      "email_domains": [
+        "hashicorp.com"
+      ],
+      "phones": [
+        "(970) 231-9011"
+      ],
+      "websites": [
+        "https://hashicorp.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Harold Gimenez",
+        "Papi Menon",
+        "Brent Holden",
+        "Adam FitzGerald",
+        "Ash Nangia"
+      ]
+    },
+    "zycus": {
+      "canonical_name": "zycus",
+      "addresses": [
+        "103 Carnegie Center, Suite 321, Princeton NJ USA 8540"
+      ],
+      "email_domains": [
+        "zycus.com"
+      ],
+      "phones": [
+        "(609) 799-5664"
+      ],
+      "websites": [
+        "https://www.zycus.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Venkatakrishnan Rajaram"
+      ]
+    },
+    "tala": {
+      "canonical_name": "Tala",
+      "addresses": [
+        "1119 Colorado Avenue Santa Monica CA USA 90401"
+      ],
+      "email_domains": [
+        "tala.co"
+      ],
+      "phones": [
+        "(973) 541-4600, (213) 262-6903",
+        "(973) 541-4600"
+      ],
+      "websites": [
+        "https://tala.co/"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "Anar Joshi",
+        "Logan Lindsell"
+      ]
+    },
+    "cisco systems": {
+      "canonical_name": "Cisco Systems",
+      "addresses": [
+        "170 West Tasman Dr. San Jose CA Canada",
+        "170 West Tasman Dr. san Jose CA Canada",
+        "170 West Tasman Dr. san Jose CA USA",
+        "170 West Tasman Dr.san Jose CA USA"
+      ],
+      "email_domains": [
+        "cisco.com"
+      ],
+      "phones": [
+        "(408) 526-4000 / (800) 553-6387",
+        "(408) 526-4000 /(800) 553-6387"
+      ],
+      "websites": [
+        "http://www.cisco.com"
+      ],
+      "email_patterns": [
+        "flast",
+        "firstlast"
+      ],
+      "names": [
+        "Stephane Kahloun",
+        "Steven Wood",
+        "lan Hunt",
+        "Bob Ryan",
+        "Karthik Sainath",
+        "Steve Weber",
+        "Jeff Meyer",
+        "Kameron Ayati",
+        "Marty Loy"
+      ]
+    },
+    "renaissancelearning, inc.": {
+      "canonical_name": "RenaissanceLearning, Inc.",
+      "addresses": [
+        "2911 Peach Street, Wisconsin Rapids, WI USA 54494"
+      ],
+      "email_domains": [
+        "renaissance.com"
+      ],
+      "phones": [
+        "(800) 338-4204 / (715) 424-3636"
+      ],
+      "websites": [
+        "http://www.renaissance.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Shawn Sheridan"
+      ]
+    },
+    "solarwinds": {
+      "canonical_name": "SolarWinds",
+      "addresses": [
+        "7171 Southwest Parkway Building 400",
+        "7171 Southwest Parkway Building 400 Austin TX USA 78735",
+        "7171 Southwest Par kway Building 400 Austin TX USA 78735"
+      ],
+      "email_domains": [
+        "solarwinds.com"
+      ],
+      "phones": [
+        "(866) 530-8100"
+      ],
+      "websites": [
+        "http://www.solarwinds.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jason Bliss",
+        "Miroslav Valentovic",
+        "Muthuramalingam Krishnan",
+        "Rene Lego",
+        "Sara Foley",
+        "Steven Hess",
+        "Alan Toomey",
+        "Alexander Quilter"
+      ]
+    },
+    "loanlogics": {
+      "canonical_name": "LoanLogics",
+      "addresses": [
+        "4800 E.Street Road/Suite 50 Trevose PA USA 19053"
+      ],
+      "email_domains": [
+        "loanlogics.com"
+      ],
+      "phones": [
+        "(866) 557-6959, 215.367.5500"
+      ],
+      "websites": [
+        "http://www.loanlogics.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Bill Neville"
+      ]
+    },
+    "catchpoint systems": {
+      "canonical_name": "Catchpoint Systems",
+      "addresses": [
+        "228 Park Ave S #28080 New York NY USA 10003-1502",
+        "New York, NY USA"
+      ],
+      "email_domains": [
+        "catchpoint.com"
+      ],
+      "phones": [
+        "(646) 727-4557, 877-240-4450",
+        "(646) 727-4557"
+      ],
+      "websites": [
+        "http://www.catchpoint.com/"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "AJ Horst",
+        "Dritan Suljoti"
+      ]
+    },
+    "henry schein": {
+      "canonical_name": "Henry Schein",
+      "addresses": [
+        "135 Duryea Rd Melville New York USA 11747"
+      ],
+      "email_domains": [
+        "henryschein.com"
+      ],
+      "phones": [
+        "(631) 843-5500"
+      ],
+      "websites": [
+        "https://www.henryschein.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Christy Hearn"
+      ]
+    },
+    "genesys": {
+      "canonical_name": "Genesys",
+      "addresses": [
+        "2001 Junipero Serra Blvd, Daly City, CA USA 94014"
+      ],
+      "email_domains": [
+        "genesys.com"
+      ],
+      "phones": [
+        "(650) 466-1100"
+      ],
+      "websites": [
+        "http://www.genesys.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Elcenora Martinez"
+      ]
+    },
+    "pelitas": {
+      "canonical_name": "PELITAS",
+      "addresses": [
+        "2805 Dallas Pkwy, Ste 600, Plano TX USA 75093"
+      ],
+      "email_domains": [
+        "pelitas.com"
+      ],
+      "phones": [
+        "(972) 781-2030"
+      ],
+      "websites": [
+        "https://pelitas.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Manoj Chhabra",
+        "Rhonda Dick",
+        "Donald McClure"
+      ]
+    },
+    "principia biopharma": {
+      "canonical_name": "Principia Biopharma",
+      "addresses": [
+        "2200 E Grand Ave South San Francisco CA USA 94080"
+      ],
+      "email_domains": [
+        "principiabio.com"
+      ],
+      "phones": [
+        "(650) 416-7700"
+      ],
+      "websites": [
+        "https://www.principiabio.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Jeanmarie Smith-Dorsey"
+      ]
+    },
+    "pensando systems": {
+      "canonical_name": "Pensando systems",
+      "addresses": [
+        "1730 Technology Dr., San Jose CA USA 95110"
+      ],
+      "email_domains": [
+        "pensando.io"
+      ],
+      "phones": [
+        "(408) 451-9026"
+      ],
+      "websites": [
+        "https://www.pensando.io/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Vipin Jain"
+      ]
+    },
+    "workday": {
+      "canonical_name": "Workday",
+      "addresses": [
+        "6230 Stoneridge Mall Road Pleasanton CA USA 94588"
+      ],
+      "email_domains": [
+        "workday.com"
+      ],
+      "phones": [
+        "(925) 951-9000 , 877-967-5329",
+        "(925) 951-9000, 877-967-5329"
+      ],
+      "websites": [
+        "http://www.workday.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Nitin Singhal",
+        "Peter Songwen Xu"
+      ]
+    },
+    "progressive casualty insurance company": {
+      "canonical_name": "Progressive Casualty Insurance Company",
+      "addresses": [
+        "6300 Wilson Mills Road Mayfield Village OH USA 44143"
+      ],
+      "email_domains": [
+        "progressive.com"
+      ],
+      "phones": [
+        "(440) 461-5000"
+      ],
+      "websites": [
+        "http://www.progressive.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Michael Sieger"
+      ]
+    },
+    "helpsystems": {
+      "canonical_name": "HelpSystems",
+      "addresses": [
+        "6455 City West Parkway Eden Prairie MN USA 55344",
+        "Eden Prairie, Minnesota USA",
+        "6455 City west Parkway Eden Prairie MN USA 55344"
+      ],
+      "email_domains": [
+        "helpsystems.com"
+      ],
+      "phones": [
+        "952-933-0609, 800-328-1000",
+        "(952) 563-1675"
+      ],
+      "websites": [
+        "https://www.helpsystems.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "John Vottiero",
+        "Alfredo Rodriguez",
+        "David Zacharias"
+      ]
+    },
+    "beckman coulter": {
+      "canonical_name": "Beckman Coulter",
+      "addresses": [
+        "250 South Kraemer Boulevard, , Brea CA USA 92821",
+        "250 South Kraemer Boulevard, Brea CA USA 92821"
+      ],
+      "email_domains": [
+        "beckman.com"
+      ],
+      "phones": [
+        "(714) 961-4391"
+      ],
+      "websites": [
+        "https://www.beckmancoulter.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Andrea Baxa",
+        "Madhuri Barrie",
+        "Molly Shepherd"
+      ]
+    },
+    "airship (urban airship)": {
+      "canonical_name": "Airship (Urban Airship)",
+      "addresses": [
+        "1225 West Burnside Suite 401 /(855)385-3155 Jeffrey Winsor * Vice President Technology Services * Airship (Urban Airship) * http://urbanairship.com *1225 West Burnside Suite 401 Portland OR USA 97209",
+        "1225 West Burnside Suite 401 Portland OR USA 97209"
+      ],
+      "email_domains": [
+        "urbanairship.com"
+      ],
+      "phones": [
+        "(800) 720-2098 /(855) 385-3155",
+        "(800) 720-2098 / (855) 385-3155"
+      ],
+      "websites": [
+        "http://urbanairship.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jeffrey Winsor",
+        "Brett Caine"
+      ]
+    },
+    "onetrust": {
+      "canonical_name": "OneTrust",
+      "addresses": [
+        "1200 Abernathy Rd 600, Ne, Bldg, Atlanta GA USA 30328"
+      ],
+      "email_domains": [
+        "onetrust.com"
+      ],
+      "phones": [
+        "(844) 847-7154"
+      ],
+      "websites": [
+        "https://www.onetrust.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Sibi Girijanathan"
+      ]
+    },
+    "datadog inc": {
+      "canonical_name": "Datadog Inc",
+      "addresses": [
+        "620 8th Ave, 45th Floor New York NY USA 10018"
+      ],
+      "email_domains": [
+        "datadoghq.com"
+      ],
+      "phones": [
+        "(866) 329-4466"
+      ],
+      "websites": [
+        "http://www.datadoghq.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Daniel J.",
+        "Alex Poe"
+      ]
+    },
+    "roostify": {
+      "canonical_name": "Roostify",
+      "addresses": [
+        "303 Second St South Tower, Suite 325 San Francisco CA USA 94107"
+      ],
+      "email_domains": [
+        "roostify.com"
+      ],
+      "phones": [
+        "(888) 908-2470",
+        "(6 (888) 908-2470"
+      ],
+      "websites": [
+        "https://www.roostify.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Travis Kniffen",
+        "Kanwalieet Kalra"
+      ]
+    },
+    "general atomics - ga": {
+      "canonical_name": "General Atomics - GA",
+      "addresses": [
+        "3550 General Atomics Ct San Diego California USA 92121"
+      ],
+      "email_domains": [
+        "ga.com"
+      ],
+      "phones": [
+        "(858) 455-3000"
+      ],
+      "websites": [
+        "https://www.ga.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Nuriel Lapidot",
+        "Aaron Buckner"
+      ]
+    },
+    "rubrik": {
+      "canonical_name": "Rubrik",
+      "addresses": [
+        "1001 Page Mill Road, Building 2, Palo Alto CA USA 94304"
+      ],
+      "email_domains": [
+        "rubrik.com"
+      ],
+      "phones": [
+        "(650) 300-5862"
+      ],
+      "websites": [
+        "http://rubrik.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Arun Varadarajan"
+      ]
+    },
+    "edwards lifesciences": {
+      "canonical_name": "Edwards Lifesciences",
+      "addresses": [
+        "One Edwards Way Irvine CA USA 92614"
+      ],
+      "email_domains": [
+        "edwards.com"
+      ],
+      "phones": [
+        "(949) 250-2500"
+      ],
+      "websites": [
+        "https://www.edwards.com/"
+      ],
+      "email_patterns": [
+        "first_last"
+      ],
+      "names": [
+        "Griffin Quick",
+        "Bill Srouji"
+      ]
+    },
+    "haemonetics": {
+      "canonical_name": "Haemonetics",
+      "addresses": [
+        "125 Summer St Boston Massachusetts USA 2110"
+      ],
+      "email_domains": [
+        "haemonetics.com"
+      ],
+      "phones": [
+        "(781) 848-7100"
+      ],
+      "websites": [
+        "http://www.haemonetics.com/"
+      ],
+      "email_patterns": [
+        "flast",
+        "first.last"
+      ],
+      "names": [
+        "Gary Wirth",
+        "Kathie Salemme"
+      ]
+    },
+    "dexcom": {
+      "canonical_name": "Dexcom",
+      "addresses": [
+        "6340 Sequence Drive San Diego CA USA 92121"
+      ],
+      "email_domains": [
+        "dexcom.com"
+      ],
+      "phones": [
+        "(858) 200-0200"
+      ],
+      "websites": [
+        "http://www.dexcom.com"
+      ],
+      "email_patterns": [
+        "first.last",
+        "flast"
+      ],
+      "names": [
+        "Andrew Parker",
+        "Elsa Peralta-Blanco",
+        "Mark Juric",
+        "Jonathan Salama",
+        "Nirav Bhatt",
+        "Dana Cambra"
+      ]
+    },
+    "a10 networks": {
+      "canonical_name": "A10 Networks",
+      "addresses": [
+        "3 West Plumeria Drive San Jose CA USA 95134"
+      ],
+      "email_domains": [
+        "a10networks.com"
+      ],
+      "phones": [
+        "(408) 325-8668"
+      ],
+      "websites": [
+        "http://www.a10networks.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Amr Alashaai",
+        "Jonathan Perkins"
+      ]
+    },
+    "upstart network inc": {
+      "canonical_name": "Upstart Network Inc",
+      "addresses": [
+        "2 Circle Star Way, San Carlos CA USA 94070"
+      ],
+      "email_domains": [
+        "upstart.com"
+      ],
+      "phones": [
+        "(650) 204-1000"
+      ],
+      "websites": [
+        "https://www.upstart.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jyotsna Akula"
+      ]
+    },
+    "uninterrupted": {
+      "canonical_name": "Uninterrupted",
+      "addresses": [
+        "Hollywood, CA United States"
+      ],
+      "email_domains": [
+        "uninterrupted.com"
+      ],
+      "phones": [
+        "NA"
+      ],
+      "websites": [
+        "https://www.uninterrupted.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Ricardo Viramontes"
+      ]
+    },
+    "cloudvirga": {
+      "canonical_name": "Cloudvirga",
+      "addresses": [
+        "2860 Michelle Drive Irvine CA USA 92606"
+      ],
+      "email_domains": [
+        "cloudvirga.com"
+      ],
+      "phones": [
+        "(949) 276-8550"
+      ],
+      "websites": [
+        "http://www.cloudvirga.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Robert Lee"
+      ]
+    },
+    "kabbage, inc": {
+      "canonical_name": "Kabbage, Inc",
+      "addresses": [
+        "730 Peachtree St Ne #350 Atlanta GA USA Matthew Sawyer* Development Manager*Kabbage, Inc* https://www.kabbage.com/* 730 Peachtree St Ne #350 Atlanta GA USA 30308"
+      ],
+      "email_domains": [
+        "kabbage.com"
+      ],
+      "phones": [
+        "(855) 278-7084"
+      ],
+      "websites": [
+        "https://www.kabbage.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Matthew Sawyer"
+      ]
+    },
+    "atricure": {
+      "canonical_name": "AtriCure",
+      "addresses": [
+        "7555 Innovation Way, Mason Ohio USA 45040"
+      ],
+      "email_domains": [
+        "atricure.com"
+      ],
+      "phones": [
+        "(513) 755-4100"
+      ],
+      "websites": [
+        "https://www.atricure.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Scot Armstrong",
+        "Robert Strasser"
+      ]
+    },
+    "bausch + lomb": {
+      "canonical_name": "Bausch + Lomb",
+      "addresses": [
+        "1400 Goodman St N Rochester New York USA 14603"
+      ],
+      "email_domains": [
+        "bausch.com"
+      ],
+      "phones": [
+        "(585) 338-6000"
+      ],
+      "websites": [
+        "https://www.bausch.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Nelson Schwenk"
+      ]
+    },
+    "baker hill": {
+      "canonical_name": "Baker Hill",
+      "addresses": [
+        "1320 City Center Dr, Ste 300 Carmel Indiana USA 46032"
+      ],
+      "email_domains": [
+        "bakerhill.com"
+      ],
+      "phones": [
+        "(317) 571-2000"
+      ],
+      "websites": [
+        "https://www.bakerhill.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jeff Luginbill"
+      ]
+    },
+    "move inc": {
+      "canonical_name": "Move Inc",
+      "addresses": [
+        "3315 Scott Blvd. Santa Clara CA USA 95054"
+      ],
+      "email_domains": [
+        "realtors.org",
+        "realtor.com"
+      ],
+      "phones": [
+        "(805) 557-2300 /(408) 558-7100"
+      ],
+      "websites": [
+        "http://www.move.com"
+      ],
+      "email_patterns": [
+        "flast",
+        "first.last"
+      ],
+      "names": [
+        "Anne Jude Hunt",
+        "Enoch Chen"
+      ]
+    },
+    "splunk": {
+      "canonical_name": "Splunk",
+      "addresses": [
+        "270 Brannan Street San Francisco CA USA 94107"
+      ],
+      "email_domains": [
+        "splunk.com"
+      ],
+      "phones": [
+        "(415) 848-8400 , 415.848.8450"
+      ],
+      "websites": [
+        "http://www.splunk.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Christina Geng",
+        "Ali Raza"
+      ]
+    },
+    "asg technologies&qa": {
+      "canonical_name": "ASG Technologies&QA",
+      "addresses": [
+        "708 Goodlette Road North Naples FL USA 34102"
+      ],
+      "email_domains": [
+        "asg.com"
+      ],
+      "phones": [
+        "(239) 435-2200"
+      ],
+      "websites": [
+        "https://www.asg.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Carol Capano"
+      ]
+    },
+    "onetrust&qa": {
+      "canonical_name": "OneTrust&QA",
+      "addresses": [
+        "1200 Abernathy Rd NE, Building 600 , Atlanta Georgia USA 30328"
+      ],
+      "email_domains": [
+        "onetrust.com"
+      ],
+      "phones": [
+        "(844) 847-7154"
+      ],
+      "websites": [
+        "https://www.onetrust.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Wasim Haque"
+      ]
+    },
+    "tuft & needle": {
+      "canonical_name": "Tuft & Needle",
+      "addresses": [
+        "No Address Available"
+      ],
+      "email_domains": [
+        "tn.com"
+      ],
+      "phones": [
+        "(877) 842-2586"
+      ],
+      "websites": [
+        "https://www.tuftandneedle.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Lee T. Herge"
+      ]
+    },
+    "corning incorporated": {
+      "canonical_name": "Corning Incorporated",
+      "addresses": [
+        "One Riverfront Plaza, Corning NY United States 14831"
+      ],
+      "email_domains": [
+        "corning.com"
+      ],
+      "phones": [
+        "(607) 974-9000"
+      ],
+      "websites": [
+        "https://www.corning.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Jandry Bernal",
+        "Anna Nached"
+      ]
+    },
+    "papa inc&qa": {
+      "canonical_name": "Papa Inc&QA",
+      "addresses": [
+        "78 SW 7th St, Ste 500 Miami FL USA 33130"
+      ],
+      "email_domains": [
+        "papa.co"
+      ],
+      "phones": [
+        "(800) 348-7951"
+      ],
+      "websites": [
+        "https://www.joinpapa.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Jenny Bramble"
+      ]
+    },
+    "wolfram&qa": {
+      "canonical_name": "Wolfram&QA",
+      "addresses": [
+        "100 Trade Center Dr Champaign, Illinois Illinois USA 61820"
+      ],
+      "email_domains": [
+        "wolfram.com"
+      ],
+      "phones": [
+        "(217) 398-0700"
+      ],
+      "websites": [
+        "http://wolfram.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Arnoud Buzing"
+      ]
+    },
+    "securiti.ai": {
+      "canonical_name": "SECURITI.ai",
+      "addresses": [
+        "3031 Tisch Way #100, San Jose CA USA 95128"
+      ],
+      "email_domains": [
+        "securiti.ai"
+      ],
+      "phones": [
+        "No Data"
+      ],
+      "websites": [
+        "https://securiti.ai/"
+      ],
+      "email_patterns": [
+        "flast",
+        "first.last"
+      ],
+      "names": [
+        "Rehan Jalil",
+        "Scott Truchot"
+      ]
+    },
+    "spirion": {
+      "canonical_name": "Spirion",
+      "addresses": [
+        "200 Central Ave, Suite 1900 St. Petersburg FL USA 33701"
+      ],
+      "email_domains": [
+        "spirion.com",
+        "spirion.co"
+      ],
+      "phones": [
+        "(646) 863-8301"
+      ],
+      "websites": [
+        "https://www.spirion.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Tim Barnett",
+        "Gabriel Gumbs",
+        "Jen Holtvluwer",
+        "Penni Kessler"
+      ]
+    },
+    "lacework": {
+      "canonical_name": "Lacework",
+      "addresses": [
+        "700 E El Camino Real Suite 130 Mountain View, CA Mountain View CA USA 94041"
+      ],
+      "email_domains": [
+        "lacework.net"
+      ],
+      "phones": [
+        "888-292-5027"
+      ],
+      "websites": [
+        "https://www.lacework.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Chetan Rai"
+      ]
+    },
+    "freedom financial network": {
+      "canonical_name": "Freedom Financial Network",
+      "addresses": [
+        "1875 S Grant St, #400 San Mateo CA USA 94402"
+      ],
+      "email_domains": [
+        "freedomfinancialnetwork.com"
+      ],
+      "phones": [
+        "(800) 220-7791"
+      ],
+      "websites": [
+        "https://www.freedomfinancialnetwork.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Cynthia Smith"
+      ]
+    },
+    "arthrex": {
+      "canonical_name": "Arthrex",
+      "addresses": [
+        "1370 Creekside Blvd, Naples Florida USA 34108"
+      ],
+      "email_domains": [
+        "arthrex.com"
+      ],
+      "phones": [
+        "(239) 643-5553"
+      ],
+      "websites": [
+        "https://www.arthrex.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Handsel Kristopher",
+        "Topher Bare"
+      ]
+    },
+    "land gorilla": {
+      "canonical_name": "Land Gorilla",
+      "addresses": [
+        "1241 Johnson #154 San Luis Obispo CA USA 93401"
+      ],
+      "email_domains": [
+        "landgorilla.com"
+      ],
+      "phones": [
+        "(855) 887-3800"
+      ],
+      "websites": [
+        "https://landgorilla.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Barry Dacus"
+      ]
+    },
+    "cornerstone ondemand inc": {
+      "canonical_name": "Cornerstone onDemand Inc",
+      "addresses": [
+        "1601 Cloverfield Blvd. Ste. 620, Santa Monica CA USA 90404"
+      ],
+      "email_domains": [
+        "csod.com"
+      ],
+      "phones": [
+        "(310) 752-0200"
+      ],
+      "websites": [
+        "http://www.cornerstoneondemand.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Iiham Abouelhouda"
+      ]
+    },
+    "cepheid&qa": {
+      "canonical_name": "Cepheid&QA",
+      "addresses": [
+        "904 Caribbean Drive Sunnyvale CA USA 94089"
+      ],
+      "email_domains": [
+        "cepheid.com"
+      ],
+      "phones": [
+        "(408) 541-4191"
+      ],
+      "websites": [
+        "www.cepheid.com"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "Lakshmi Pochinapeddi"
+      ]
+    },
+    "optanix": {
+      "canonical_name": "Optanix",
+      "addresses": [
+        "251 Salina Meadows Pkwy. Syracuse New York USA 13212"
+      ],
+      "email_domains": [
+        "verizon.net",
+        "optanix.com"
+      ],
+      "phones": [
+        "(844) 303-4011"
+      ],
+      "websites": [
+        "https://www.optanix.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Rick Losey",
+        "Daniel Martin"
+      ]
+    },
+    "acumed": {
+      "canonical_name": "Acumed",
+      "addresses": [
+        "5885 NW Cornelius Pass Rd. Hillsboro OR USA 97124"
+      ],
+      "email_domains": [
+        "acumed.net"
+      ],
+      "phones": [
+        "(888) 627-9957 / (503) 627-9957"
+      ],
+      "websites": [
+        "http://www.acumed.net/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Erika Guthrie"
+      ]
+    },
+    "empirix inc.": {
+      "canonical_name": "Empirix Inc.",
+      "addresses": [
+        "600 Technology Park Drive, Suite 100 Billerica MA USA 1821"
+      ],
+      "email_domains": [
+        "empirix.com"
+      ],
+      "phones": [
+        "(781) 266-3200 / 978 313 7000",
+        "(781) 266-3200 , 978 313 7000"
+      ],
+      "websites": [
+        "http://www.empirix.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Michelle L Dunn",
+        "Richard Mitchell"
+      ]
+    },
+    "commvault systems inc": {
+      "canonical_name": "CommVault Systems Inc",
+      "addresses": [
+        "1 Commvault Way Tinton Falls NJ USA 7724"
+      ],
+      "email_domains": [
+        "commvault.com"
+      ],
+      "phones": [
+        "(888) 746-3849/732-728-5310",
+        "(888) 746-3849 /732-728-5310"
+      ],
+      "websites": [
+        "http://www.commvault.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "David Ngo",
+        "Damian Andre"
+      ]
+    },
+    "graystone mortgage llc": {
+      "canonical_name": "Graystone Mortgage LLC",
+      "addresses": [
+        "1966 East 6200 South, Salt Lake City UT USA 84121"
+      ],
+      "email_domains": [
+        "graystonemortgage.com"
+      ],
+      "phones": [
+        "(801) 274-7400"
+      ],
+      "websites": [
+        "https://graystonemortgage.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Phil Stooksbury"
+      ]
+    },
+    "thousandeyes inc": {
+      "canonical_name": "ThousandEyes Inc",
+      "addresses": [
+        "San Francisco, California USA",
+        "301 Howard St., Suite 1700 San Francisco CA USA 94105"
+      ],
+      "email_domains": [
+        "thousandeyes.com"
+      ],
+      "phones": [
+        "(415) 231-5674",
+        "(650) 773-8164,415-513-4526"
+      ],
+      "websites": [
+        "http://www.thousandeyes.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Adam Wilson",
+        "Chris Schmidt",
+        "Jason Warfield",
+        "John Clark"
+      ]
+    },
+    "homestreet bank": {
+      "canonical_name": "Homestreet Bank",
+      "addresses": [
+        "601 UNION St. Ste. 2000, Seattle WA USA 98101"
+      ],
+      "email_domains": [
+        "homestreet.com"
+      ],
+      "phones": [
+        "(206) 623-3050"
+      ],
+      "websites": [
+        "https://www.homestreet.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Mike Silverberg"
+      ]
+    },
+    "cloudera inc": {
+      "canonical_name": "Cloudera Inc",
+      "addresses": [
+        "395 Page Mill Rd Palo Alto CA USA 94306"
+      ],
+      "email_domains": [
+        "cloudera.com"
+      ],
+      "phones": [
+        "(650) 843-0595 /888-789-1488",
+        "(650) 843-0595/888-789-1488"
+      ],
+      "websites": [
+        "http://www.cloudera.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Jean-Daniel Cryans",
+        "Amr Awadallah",
+        "Jim McKernan"
+      ]
+    },
+    "bluevoyant": {
+      "canonical_name": "BlueVoyant",
+      "addresses": [
+        "335 Madison Ave, Ste 56 New York NY NY USA 10017"
+      ],
+      "email_domains": [
+        "bluevoyant.com"
+      ],
+      "phones": [
+        "(646) 558-0052"
+      ],
+      "websites": [
+        "https://www.bluevoyant.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Brian Miller"
+      ]
+    },
+    "entrust datacard": {
+      "canonical_name": "Entrust Datacard",
+      "addresses": [
+        "1187 Park Place Shakopee MN USA 55379"
+      ],
+      "email_domains": [
+        "datacard.com"
+      ],
+      "phones": [
+        "(952) 933-1223 ,800 621 6972"
+      ],
+      "websites": [
+        "https://www.entrustdatacard.com"
+      ],
+      "email_patterns": [
+        "first_last"
+      ],
+      "names": [
+        "Dale Nordenstrom"
+      ]
+    },
+    "instacart": {
+      "canonical_name": "Instacart",
+      "addresses": [
+        "92 S Park St San Francisco CA USA 94107-1807"
+      ],
+      "email_domains": [
+        "instacart.com"
+      ],
+      "phones": [
+        "(910) 817-2278"
+      ],
+      "websites": [
+        "https://www.instacart.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Srinivasan Rajagopal"
+      ]
+    },
+    "bayview loan servicing, llc": {
+      "canonical_name": "Bayview Loan Servicing, LLC",
+      "addresses": [
+        "4425 Ponce de Leon Blvd. 5th Fl. Miami FL USA 33146"
+      ],
+      "email_domains": [
+        "communityloanservicing.com"
+      ],
+      "phones": [
+        "(305) 854-8880"
+      ],
+      "websites": [
+        "https://www.bayviewloanservicing.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Joe Pensabene"
+      ]
+    },
+    "dynatrace": {
+      "canonical_name": "Dynatrace",
+      "addresses": [
+        "One Campus Martius Detroit MI USA 48226"
+      ],
+      "email_domains": [
+        "dynatrace.com"
+      ],
+      "phones": [
+        "(313) 227-7300"
+      ],
+      "websites": [
+        "http://www.dynatrace.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Alejandro Ramirez Montero",
+        "Alexander Sommer",
+        "Anton Goosen",
+        "Arno Huetter",
+        "Eva-Maria Meyr",
+        "John Van Siclen",
+        "Mike Ghelli"
+      ]
+    },
+    "bera": {
+      "canonical_name": "BERA",
+      "addresses": [
+        "399 Park Ave, Fl 38 New York City NY NY USA 10022"
+      ],
+      "email_domains": [
+        "berafindlove.com"
+      ],
+      "phones": [
+        "(212) 317-1896"
+      ],
+      "websites": [
+        "https://bera.ai/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Michael Reh"
+      ]
+    },
+    "apria healthcare": {
+      "canonical_name": "Apria Healthcare",
+      "addresses": [
+        "26220 Enterprise Ct, Lake Forest CA USA 92630"
+      ],
+      "email_domains": [
+        "apria.com"
+      ],
+      "phones": [
+        "(949) 639-2000"
+      ],
+      "websites": [
+        "https://www.apria.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Heidi Liu",
+        "Mark Trazi",
+        "Bob Savage",
+        "Nandini Sivakumar"
+      ]
+    },
+    "conformis": {
+      "canonical_name": "ConforMIS",
+      "addresses": [
+        "600 Technology Dr, Billerica Massachusetts USA 1821"
+      ],
+      "email_domains": [
+        "conformis.com"
+      ],
+      "phones": [
+        "(781) 345-9001"
+      ],
+      "websites": [
+        "https://www.conformis.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Emmanuel Nyakako"
+      ]
+    },
+    "asg technologies": {
+      "canonical_name": "ASG Technologies",
+      "addresses": [
+        "708 Goodlette Road North, Naples FL USA 34102"
+      ],
+      "email_domains": [
+        "asg.com"
+      ],
+      "phones": [
+        "(239) 435-2200"
+      ],
+      "websites": [
+        "https://www.asg.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Peter Jacob"
+      ]
+    },
+    "epicor software": {
+      "canonical_name": "Epicor Software",
+      "addresses": [
+        "804 Las Cimas Pkwy Austin Texas USA 78746"
+      ],
+      "email_domains": [
+        "epicor.com"
+      ],
+      "phones": [
+        "(512) 328-2300"
+      ],
+      "websites": [
+        "https://www.epicor.com/en-in/"
+      ],
+      "email_patterns": [
+        "first.last",
+        "flast"
+      ],
+      "names": [
+        "Rich Murr",
+        "Bill Wilson"
+      ]
+    },
+    "sciencelogic&qa": {
+      "canonical_name": "ScienceLogic&QA",
+      "addresses": [
+        "10700 Parkridge Blvd. Suite 200 Reston VA United States 20191"
+      ],
+      "email_domains": [
+        "sciencelogic.com"
+      ],
+      "phones": [
+        "(703) 354-1010"
+      ],
+      "websites": [
+        "http://www.sciencelogic.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Robert Ray"
+      ]
+    },
+    "palo alto networks": {
+      "canonical_name": "Palo Alto Networks",
+      "addresses": [
+        "3000 Tannery Way Santa Clara CA USA 95054"
+      ],
+      "email_domains": [
+        "paloaltonetworks.com"
+      ],
+      "phones": [
+        "(408) 738-7799"
+      ],
+      "websites": [
+        "https://www.paloaltonetworks.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Suresh Subramaniam"
+      ]
+    },
+    "netapp": {
+      "canonical_name": "NetApp",
+      "addresses": [
+        "1395 Crossman Ave Sunnyvale CA United States 94089"
+      ],
+      "email_domains": [
+        "netapp.com"
+      ],
+      "phones": [
+        "(408) 822-6000"
+      ],
+      "websites": [
+        "http://www.netapp.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Greg Knieriemen"
+      ]
+    },
+    "bettercloud": {
+      "canonical_name": "BetterCloud",
+      "addresses": [
+        "330 7th Avenue 14th Floor New York NY USA 10001"
+      ],
+      "email_domains": [
+        "bettercloud.com"
+      ],
+      "phones": [
+        "(888) 999-0805, (646) 355-0607"
+      ],
+      "websites": [
+        "http://www.bettercloud.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Mohammed Khalid"
+      ]
+    },
+    "lakeside software": {
+      "canonical_name": "Lakeside Software",
+      "addresses": [
+        "40950 Woodward Ave. Bloomfield Hills Michigan USA 48304",
+        "4095 Woodward Ave. Bloomfield Hills Michigan USA 48304"
+      ],
+      "email_domains": [
+        "lakesidesoftware.com"
+      ],
+      "phones": [
+        "(248) 686-1700"
+      ],
+      "websites": [
+        "https://www.lakesidesoftware.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Franko Gabbara",
+        "Ken Seadeek"
+      ]
+    },
+    "vmware": {
+      "canonical_name": "VMware",
+      "addresses": [
+        "3401 Hillview Ave Palo Alto CA USA 94304"
+      ],
+      "email_domains": [
+        "vmware.com"
+      ],
+      "phones": [
+        "(877) 486-9273 , 650-427-1000",
+        "(877) 486-9273, 650-427-1000"
+      ],
+      "websites": [
+        "http://www.vmware.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "James Watters",
+        "Craig McLuckie",
+        "Sharath George",
+        "Shilpi Agarwal",
+        "Srikanth Koneru",
+        "Amee Cooper"
+      ]
+    },
+    "blue medora": {
+      "canonical_name": "Blue Medora",
+      "addresses": [
+        "3225 N. Evergreen Drive NE, Suite 103 Grand Rapids MI USA 49525"
+      ],
+      "email_domains": [
+        "bluemedora.com"
+      ],
+      "phones": [
+        "(616) 426-3801 / (616) 719-4550"
+      ],
+      "websites": [
+        "https://bluemedora.com"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "Daniel Jefferies"
+      ]
+    },
+    "johnson & johnson": {
+      "canonical_name": "Johnson & Johnson",
+      "addresses": [
+        "One Johnson & Johnson Dr New Brunswick NJ USA 8903"
+      ],
+      "email_domains": [
+        "its.jnj.com",
+        "itsjnj.com"
+      ],
+      "phones": [
+        "(732) 524-0400",
+        "(732)524-0400"
+      ],
+      "websites": [
+        "https://www.jnj.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Joseph Natale",
+        "Ronda Dowling",
+        "Peter Wendorf"
+      ]
+    },
+    "weststar mortgage corporation": {
+      "canonical_name": "Weststar Mortgage Corporation",
+      "addresses": [
+        "2155 Louisiana Blvd. NE Suite 8000, Albuquerque NM USA 87110"
+      ],
+      "email_domains": [
+        "westloan.com"
+      ],
+      "phones": [
+        "(505) 883-0332"
+      ],
+      "websites": [
+        "https://www.westloan.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Matt Teskey"
+      ]
+    },
+    "tvu networks": {
+      "canonical_name": "TVU Networks",
+      "addresses": [
+        "857 Maude Ave., Mountain View CA USA 94043"
+      ],
+      "email_domains": [
+        "tvunetworks.com"
+      ],
+      "phones": [
+        "(650) 969-6732"
+      ],
+      "websites": [
+        "www.tvunetworks.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Jared Timmins"
+      ]
+    },
+    "verint": {
+      "canonical_name": "Verint",
+      "addresses": [
+        "175 Broadhollow Rd, Ste 100 Melville NY USA 11747"
+      ],
+      "email_domains": [
+        "verint.com"
+      ],
+      "phones": [
+        "(631) 962-9600 , (800) 483-7468"
+      ],
+      "websites": [
+        "http://verint.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Bradley Davidson",
+        "Dmitri Daveynis"
+      ]
+    },
+    "avidxchange inc": {
+      "canonical_name": "AvidXchange Inc",
+      "addresses": [
+        "1111 Metropolitan Ave Ste 650 Charlotte NC USA 28204"
+      ],
+      "email_domains": [
+        "avidxchange.com"
+      ],
+      "phones": [
+        "(704) 971-8170 800.560.9305"
+      ],
+      "websites": [
+        "http://www.avidxchange.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Phil Sylvester"
+      ]
+    },
+    "city bank mortgage": {
+      "canonical_name": "City Bank Mortgage",
+      "addresses": [
+        "5219 City Bank Parkway Lubbock TX USA 79407"
+      ],
+      "email_domains": [
+        "city.bank"
+      ],
+      "phones": [
+        "(806) 792-7101"
+      ],
+      "websites": [
+        "www.city.bank"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Chris Koop",
+        "Tracie Ashlock"
+      ]
+    },
+    "controlup": {
+      "canonical_name": "ControlUp",
+      "addresses": [
+        "4880 Stevens Creek Blvd. San Jose CA USA 95129"
+      ],
+      "email_domains": [
+        "controlup.com"
+      ],
+      "phones": [
+        "(408) 338-8687"
+      ],
+      "websites": [
+        "https://www.controlup.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "William Messick",
+        "Erel Margalit"
+      ]
+    },
+    "vanguard_pcf": {
+      "canonical_name": "Vanguard_PCF",
+      "addresses": [
+        "100 Vanguard Blvd. Malvern PA USA 19355"
+      ],
+      "email_domains": [
+        "vanguard.com"
+      ],
+      "phones": [
+        "(610) 669-1000"
+      ],
+      "websites": [
+        "https://www.vanguard.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Brian Olinger"
+      ]
+    },
+    "tivo inc.": {
+      "canonical_name": "TiVo Inc.",
+      "addresses": [
+        "2160 Gold Street San Jose CA USA 95002"
+      ],
+      "email_domains": [
+        "tivo.com"
+      ],
+      "phones": [
+        "(408) 519-9100"
+      ],
+      "websites": [
+        "http://www.tivo.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Rich Matthews"
+      ]
+    },
+    "roku inc": {
+      "canonical_name": "Roku Inc",
+      "addresses": [
+        "12980 Saratoga Ave Ste D Saratoga CA USA 95070-4659"
+      ],
+      "email_domains": [
+        "roku.com"
+      ],
+      "phones": [
+        "(408) 556-9040"
+      ],
+      "websites": [
+        "http://www.roku.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Robert Foldes"
+      ]
+    },
+    "salt lending": {
+      "canonical_name": "SALT Lending",
+      "addresses": [
+        "PO Box 8350 Denver, Colorado, USA 80201"
+      ],
+      "email_domains": [
+        "saltlending.com"
+      ],
+      "phones": [
+        "(720) 575-2272"
+      ],
+      "websites": [
+        "https://saltlending.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Brandon West"
+      ]
+    },
+    "keybank_avnish": {
+      "canonical_name": "KeyBank_Avnish",
+      "addresses": [
+        "127 Public Square, Cleveland OH USA 44114"
+      ],
+      "email_domains": [
+        "key.com"
+      ],
+      "phones": [
+        "(216) 689-3000"
+      ],
+      "websites": [
+        "https://www.key.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Mark Kovachick"
+      ]
+    },
+    "cit group": {
+      "canonical_name": "CIT Group",
+      "addresses": [
+        "75 North Fair Oaks Ave Pasadena CA USA 91103"
+      ],
+      "email_domains": [
+        "cit.com"
+      ],
+      "phones": [
+        "(973) 740-5000"
+      ],
+      "websites": [
+        "https://www.cit.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Peter Connolly"
+      ]
+    },
+    "mindbody": {
+      "canonical_name": "Mindbody",
+      "addresses": [
+        "4051 Broad Street, Suite 220 San Luis Obispo CA USA 93401"
+      ],
+      "email_domains": [
+        "mindbodyonline.com"
+      ],
+      "phones": [
+        "(805) 546-2000 / (877) 755-4279"
+      ],
+      "websites": [
+        "http://www.mindbodyonline.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Regina Wallace-Jones",
+        "Brian Greene"
+      ]
+    },
+    "impac mortgage corp": {
+      "canonical_name": "Impac Mortgage Corp",
+      "addresses": [
+        "19500 Jamboree Rd., California, United States, Irvine, CA, USA 92612"
+      ],
+      "email_domains": [
+        "impacmail.com"
+      ],
+      "phones": [
+        "(949) 475-3600"
+      ],
+      "websites": [
+        "www.impaccompanies.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Rich Zimmerman"
+      ]
+    },
+    "ivanti": {
+      "canonical_name": "Ivanti",
+      "addresses": [
+        "698 West 10000 South Suite 500 South Jordan UT USA 84095",
+        "Suite 500 698 West 10000 South South Jordan UT USA 84095"
+      ],
+      "email_domains": [
+        "ivanti.com"
+      ],
+      "phones": [
+        "(801) 208-1500"
+      ],
+      "websites": [
+        "www.ivanti.com"
+      ],
+      "email_patterns": [
+        "firstlast",
+        "first.last"
+      ],
+      "names": [
+        "Adam Jones",
+        "Joel Johnson"
+      ]
+    },
+    "nice": {
+      "canonical_name": "NICE",
+      "addresses": [
+        "CORPORATEHEADQUARTERS Raanana Israel USA Office Waterfront Corporate Center Il, 221 River St 10th & 11th floors Hoboken NJ USA 7030",
+        "CORPORATEHEADQUARTERS Ra'anana Israel USA OfficeWaterfront Corporate Center II, 221 River St 10th & 11th floors Hoboken NJ USA 7030",
+        "CORPORATEHEADQUARTERSRaananaIsraelUSAOffice Waterfront Corporate Center Ill, 221River St 10th&11th floors Hoboken NJ USA 7030"
+      ],
+      "email_domains": [
+        "nice.com"
+      ],
+      "phones": [
+        "(551) 256-5000"
+      ],
+      "websites": [
+        "http://www.nice.com",
+        "www.nice.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Itay Grushka",
+        "Scott McCourt",
+        "Vered Shinar"
+      ]
+    },
+    "jefferson bank": {
+      "canonical_name": "Jefferson Bank",
+      "addresses": [
+        "1777 Northeast Loop 410 San Antonio TX USA 78217"
+      ],
+      "email_domains": [
+        "jeffersonbank.com"
+      ],
+      "phones": [
+        "(210) 736-7700"
+      ],
+      "websites": [
+        "www.jeffersonbank.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Hector Torres"
+      ]
+    },
+    "cbclnnovis": {
+      "canonical_name": "CBClnnovis",
+      "addresses": [
+        "250 E. Broad Street, Suite 2100 Columbus OH USA 43215"
+      ],
+      "email_domains": [
+        "cbc-companies.com"
+      ],
+      "phones": [
+        "877-284-8322"
+      ],
+      "websites": [
+        "https://www.cbcinnovis.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Trevor Davies"
+      ]
+    },
+    "intuit": {
+      "canonical_name": "Intuit",
+      "addresses": [
+        "2700 COAST Ave. Mountain View CA USA 94043",
+        "2700 Coast Ave. Mountain View CA USA 94043",
+        "2700 COAST Ave. MoUntain View CA USA 94043"
+      ],
+      "email_domains": [
+        "intuit.com"
+      ],
+      "phones": [
+        "(520) 901-3000,781-370-4400,650-944-6000"
+      ],
+      "websites": [
+        "www.intuit.com"
+      ],
+      "email_patterns": [
+        "first_last"
+      ],
+      "names": [
+        "Cindy Barker",
+        "Rajan Kumar",
+        "Mammad Zadeh",
+        "Ashok Srivastava",
+        "Itai Jeczmien"
+      ]
+    },
+    "security home mortgage": {
+      "canonical_name": "Security Home Mortgage",
+      "addresses": [
+        "576 State St Orem UT USA 84058"
+      ],
+      "email_domains": [
+        "securityhomemortgage.com"
+      ],
+      "phones": [
+        "(801) 228-0937"
+      ],
+      "websites": [
+        "https://www.securityhomemortgage.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Jon Chamberlain"
+      ]
+    },
+    "community brands": {
+      "canonical_name": "Community Brands",
+      "addresses": [
+        "9620 Executive Center Dr N #200 St. Petersburg FL usA 33702",
+        "9620 Executive Center DrN #200 St. Petersburg FL USA 33702"
+      ],
+      "email_domains": [
+        "communitybrands.com"
+      ],
+      "phones": [
+        "(727) 827-0046"
+      ],
+      "websites": [
+        "www.communitybrands.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jeff Cooper",
+        "Lars Powers"
+      ]
+    },
+    "asg techhnologies": {
+      "canonical_name": "ASG Techhnologies",
+      "addresses": [
+        "708 Goodlette Road North, Naples FL USA 34102",
+        "Naples, Florida USA"
+      ],
+      "email_domains": [
+        "asg.com"
+      ],
+      "phones": [
+        "(239) 435-2200",
+        "(817) 652-6354"
+      ],
+      "websites": [
+        "https://www.asg.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Robert Morris",
+        "Scott Mclntyre",
+        "Jordi Suñer",
+        "kristine kennedy",
+        "Marcus MacNeill"
+      ]
+    },
+    "concord": {
+      "canonical_name": "Concord",
+      "addresses": [
+        "177 Post St, San Francisco, CA USA 94108"
+      ],
+      "email_domains": [
+        "concordnow.com"
+      ],
+      "phones": [
+        "(415) 689-5488"
+      ],
+      "websites": [
+        "https://www.concordnow.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Mathilde David"
+      ]
+    },
+    "affirm": {
+      "canonical_name": "Affirm",
+      "addresses": [
+        "325 Pacific Ave,Ste 201 San Francisco CA United States 94111-1720"
+      ],
+      "email_domains": [
+        "affirm.com"
+      ],
+      "phones": [
+        "(415) 906-6069 / 855-423-3729"
+      ],
+      "websites": [
+        "https://www.affirm.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Tom Rickards"
+      ]
+    },
+    "moogsoft": {
+      "canonical_name": "Moogsoft",
+      "addresses": [
+        "1265 Battery St, San San Francisco CA USA 94111",
+        "1265 Battery St, San Francisco CA USA 94111"
+      ],
+      "email_domains": [
+        "moogsoft.com"
+      ],
+      "phones": [
+        "(415) 738-2299"
+      ],
+      "websites": [
+        "https://www.moogsoft.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Alex Mishkevich",
+        "Predrag Mutavdzic",
+        "Shimon Morad"
+      ]
+    },
+    "sap": {
+      "canonical_name": "SAP",
+      "addresses": [
+        "Upscale Pike Newtown Square PA USA 19073"
+      ],
+      "email_domains": [
+        "sap.com"
+      ],
+      "phones": [
+        "(610) 661-1000"
+      ],
+      "websites": [
+        "www.sap.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Sang-Jin Lee"
+      ]
+    },
+    "datarobot": {
+      "canonical_name": "DataRobot",
+      "addresses": [
+        "One International Place,5th Floor Boston MA United States 2110"
+      ],
+      "email_domains": [
+        "datarobot.com"
+      ],
+      "phones": [
+        "(617) 765-4500"
+      ],
+      "websites": [
+        "http://www.datarobot.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Adam Weinstein"
+      ]
+    },
+    "instana": {
+      "canonical_name": "Instana",
+      "addresses": [
+        "222 South Riverside Plz., 15th Fl. Chicago IL USA 60606"
+      ],
+      "email_domains": [
+        "instana.com"
+      ],
+      "phones": [
+        "(415) 340-2777"
+      ],
+      "websites": [
+        "https://www.instana.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Nils Wloka",
+        "Raphael Weiner",
+        "Chris Farrell"
+      ]
+    },
+    "social finance (sofi)": {
+      "canonical_name": "Social Finance (SoFi)",
+      "addresses": [
+        "One Letterman Drive,Building A Suite 4700 San Francisco CA USA 94129"
+      ],
+      "email_domains": [
+        "sofi.com"
+      ],
+      "phones": [
+        "(866) 357-6342"
+      ],
+      "websites": [
+        "https://www.Sofi.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Anthony Noto"
+      ]
+    },
+    "nationstar mortgage llc": {
+      "canonical_name": "Nationstar Mortgage LLC",
+      "addresses": [
+        "8950 Cypress Waters Blvd Dallas Tx USA 75019",
+        "8950 CypresS Waters Blvd Dallas TX USA 75019"
+      ],
+      "email_domains": [
+        "mrcooper.com"
+      ],
+      "phones": [
+        "(972) 219-4400, (469) 549-2000",
+        "(972) 219-4400 / (469) 549-2000"
+      ],
+      "websites": [
+        "https://www.nationstarmtg.com"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "Patricia Vinice",
+        "Mani Jonnalagadda"
+      ]
+    },
+    "perforce software": {
+      "canonical_name": "Perforce Software",
+      "addresses": [
+        "400 First Avenue North #200 Minneapolis MN USA 55401"
+      ],
+      "email_domains": [
+        "perforce.com"
+      ],
+      "phones": [
+        "612.517.2100"
+      ],
+      "websites": [
+        "www.perforce.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Brad Hart",
+        "Mark Ties"
+      ]
+    },
+    "cu direct": {
+      "canonical_name": "CU Direct",
+      "addresses": [
+        "2855 E. Guasti Road, Suite 500 Ontario CA USA 91761"
+      ],
+      "email_domains": [
+        "cudirect.com"
+      ],
+      "phones": [
+        "(909) 297-2933"
+      ],
+      "websites": [
+        "www.cudirect.com"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "Ray Jandga"
+      ]
+    },
+    "lendkey technologies, inc": {
+      "canonical_name": "LendKey Technologies, Inc",
+      "addresses": [
+        "104 w. 27th St. 4th Floor New York NY USA 10001"
+      ],
+      "email_domains": [
+        "lendkey.com"
+      ],
+      "phones": [
+        "(800) 583-1416"
+      ],
+      "websites": [
+        "http://www.lendkey.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Dorothy Chan"
+      ]
+    },
+    "aifilnc": {
+      "canonical_name": "AiFilnc",
+      "addresses": [
+        "2388Walsh Ave.,Santa Clara CA USA"
+      ],
+      "email_domains": [
+        "aifi.io"
+      ],
+      "phones": [
+        "No Data"
+      ],
+      "websites": [
+        "www.aifi.io"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Steve Gu"
+      ]
+    },
+    "vertafore inc": {
+      "canonical_name": "Vertafore Inc",
+      "addresses": [
+        "11724 NE 195th Street Bothell WA USA 98011"
+      ],
+      "email_domains": [
+        "vertafore.com"
+      ],
+      "phones": [
+        "(800) 444-4813 / (425) 402-1000"
+      ],
+      "websites": [
+        "http://www.vertafore.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Lori Sanders"
+      ]
+    },
+    "global payments inc": {
+      "canonical_name": "Global Payments Inc",
+      "addresses": [
+        "3550 LENOX Rd.Atlanta GA USA30326",
+        "3550 LENOX Rd.Atlanta GA USA 30326",
+        "3550 LENOX Rd. Atlanta GA USA 30326"
+      ],
+      "email_domains": [
+        "globalpay.com"
+      ],
+      "phones": [
+        "(770) 829-8030 / (770) 829-8000"
+      ],
+      "websites": [
+        "www.globalpaymentsinc.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Mridula Wittke",
+        "Matt Colin",
+        "Jonathan Rigaud"
+      ]
+    },
+    "cloudflarelnc": {
+      "canonical_name": "Cloudflarelnc",
+      "addresses": [
+        "101 Townsend St San Francisco CA USA 94107"
+      ],
+      "email_domains": [
+        "cloudflare.com"
+      ],
+      "phones": [
+        "(650) 319-8930"
+      ],
+      "websites": [
+        "www.cloudflare.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Rita Giran"
+      ]
+    },
+    "radian group inc": {
+      "canonical_name": "Radian Group Inc",
+      "addresses": [
+        "1500 Market Street Philadelphia PA USA 19102"
+      ],
+      "email_domains": [
+        "radian.com"
+      ],
+      "phones": [
+        "(800) 523-1988 , 215-231-1000"
+      ],
+      "websites": [
+        "http://www.radian.biz"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Eric Ray"
+      ]
+    },
+    "american pacific mortgage": {
+      "canonical_name": "American Pacific Mortgage",
+      "addresses": [
+        "3000 Lava Ridge Court, Suite 200 Roseville CA USA 95661"
+      ],
+      "email_domains": [
+        "apmortgage.com"
+      ],
+      "phones": [
+        "(916) 960-1325"
+      ],
+      "websites": [
+        "www.apmortgage.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Michael Guidotti"
+      ]
+    },
+    "inap": {
+      "canonical_name": "INAP",
+      "addresses": [
+        "12120 Sunset Hills Road Suite 330 Reston VA USA 20190"
+      ],
+      "email_domains": [
+        "internap.com",
+        "inap.com.au"
+      ],
+      "phones": [
+        "(877) 843-7627"
+      ],
+      "websites": [
+        "www.inap.com",
+        "https://www.inap.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Eric Suddith",
+        "Terrence Chatwin"
+      ]
+    },
+    "nordstrom": {
+      "canonical_name": "Nordstrom",
+      "addresses": [
+        "1617 6th Avenue Seattle WA USA 98101"
+      ],
+      "email_domains": [
+        "nordstrom.com"
+      ],
+      "phones": [
+        "(206) 628-2111"
+      ],
+      "websites": [
+        "http://www.nordstrom.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Dianna Mistele"
+      ]
+    },
+    "gigamon": {
+      "canonical_name": "Gigamon",
+      "addresses": [
+        "3300 Olcott Street Santa Clara CA USA 95054"
+      ],
+      "email_domains": [
+        "gigamon.com"
+      ],
+      "phones": [
+        "(408) 831-4000"
+      ],
+      "websites": [
+        "http://www.gigamon.com",
+        "www.gigamon.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Anthony (Tony) Perri",
+        "Ranjan Goel",
+        "Shane Buckley",
+        "Vy Ngo",
+        "Malcolm Aylott",
+        "Navine Nadaradjane"
+      ]
+    },
+    "infor": {
+      "canonical_name": "Infor",
+      "addresses": [
+        "641 Avenue of the Americas New York NY USA 10011"
+      ],
+      "email_domains": [
+        "infor.com"
+      ],
+      "phones": [
+        "(646) 336-1700 ,866 244 5479"
+      ],
+      "websites": [
+        "https://www.infor.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Catherine Henn"
+      ]
+    },
+    "biz2credit.com": {
+      "canonical_name": "Biz2Credit.com",
+      "addresses": [
+        "#462 Seventh Avenue, 20th Floor New York NY USA 10018"
+      ],
+      "email_domains": [
+        "biz2credit.com"
+      ],
+      "phones": [
+        "(212) 644-4555"
+      ],
+      "websites": [
+        "http://www.biz2credit.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Anupam Saha"
+      ]
+    },
+    "kaminario": {
+      "canonical_name": "Kaminario",
+      "addresses": [
+        "75 Second Avenue 6th Floor, Suite 620 Needham MA USA 2494"
+      ],
+      "email_domains": [
+        "kaminario.com"
+      ],
+      "phones": [
+        "(877) 982-2555"
+      ],
+      "websites": [
+        "http://kaminario.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Eyal David"
+      ]
+    },
+    "acutus medical": {
+      "canonical_name": "Acutus Medical",
+      "addresses": [
+        "2210 Faraday Ave, Ste 100 Carlsbad CA USA 92008"
+      ],
+      "email_domains": [
+        "acutus.com"
+      ],
+      "phones": [
+        "(442) 232-6100 ,(442) 232-6100"
+      ],
+      "websites": [
+        "https://www.acutusmedical.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Min Zhu"
+      ]
+    },
+    "analogic": {
+      "canonical_name": "Analogic",
+      "addresses": [
+        "8 Centennial Dr, Peabody Massachusetts USA 1960"
+      ],
+      "email_domains": [
+        "analogic.com"
+      ],
+      "phones": [
+        "(978) 326-4000"
+      ],
+      "websites": [
+        "https://www.analogic.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Sorin Marcovici"
+      ]
+    },
+    "microsoft": {
+      "canonical_name": "Microsoft",
+      "addresses": [
+        "One Microsoft Way Redmond WA USA 98052-6399",
+        "One Microsoft Way Redmond WAUSA 98052-6399",
+        "One Microsoft way Redmond WA USA 98052-6399",
+        "0ne Microsoft Way Redmond WA USA 98052-6399"
+      ],
+      "email_domains": [
+        "microsoft.com",
+        "exchange.microsoft.com"
+      ],
+      "phones": [
+        "(425) 882-8080"
+      ],
+      "websites": [
+        "https://www.microsoft.com"
+      ],
+      "email_patterns": [
+        "first.last",
+        "flast",
+        "firstlast"
+      ],
+      "names": [
+        "Raul Bandeira",
+        "Sue Bohn",
+        "Lan Ye",
+        "Ashis Roy",
+        "Steve Dodge",
+        "Andreas Luther",
+        "Josh George",
+        "Stephen Houchen",
+        "Shri Vidhya Alagesan",
+        "Darmadi Komo",
+        "Tony Checkal",
+        "Erin Riley",
+        "Ankur Agarwal",
+        "Anand Rengasamy",
+        "Chris Hallberg",
+        "Dan Jones",
+        "Ali Mazaheri",
+        "Andrew Hart",
+        "Merav Davidson",
+        "Scott Guthrie",
+        "Reynold D'SA",
+        "Dan Shier",
+        "John Capista",
+        "Brandon Rubenstein",
+        "Gundrala Devender Goud",
+        "Meir Shmouely",
+        "Narkis Engler",
+        "Nadim Abdo",
+        "John Cunningham",
+        "Rasha Wahba",
+        "Robin Alexander",
+        "Dan Milner",
+        "Brian Workman",
+        "Chung Webster",
+        "Hanumantha Rao Kurudi",
+        "Prem Narayanan",
+        "Shiv Rajpal",
+        "Christina Nemeth",
+        "Vladimir Bakhmetyev",
+        "Jivko Kolev",
+        "Wendy Wiehardt",
+        "Mallik Bulusu",
+        "Marissa Quebbeman",
+        "Thirupathaiah Annapureddy",
+        "Tom Keane",
+        "Pradeep Nair",
+        "Bradley Bartz",
+        "Caroline Rhodes",
+        "Chris Capossela",
+        "Neha Agarwal",
+        "Dana Sugarman",
+        "Mauricio Arriagada",
+        "Jennifer Norton",
+        "Andrew Smith",
+        "Jeff Teper",
+        "Amy Stiuca",
+        "Chandra Chivukula",
+        "Rakesh Guijula",
+        "Anand Prakash",
+        "Mohan Sunkara",
+        "Rangan Majumder",
+        "Clint Williams",
+        "Steven Abrahams",
+        "Mehmet Yurdal",
+        "Hanuma Kodavalla",
+        "EricHorvitz",
+        "Susan Dumais",
+        "Yura Lee",
+        "Arvind Sethuraman",
+        "Chad Sogge",
+        "Mansoor Jafry",
+        "Saurabh Drolia",
+        "Someshwar Rao Gujia",
+        "Sudarshan Jagannathan",
+        "Sunny Liu",
+        "Nanda Sreerama",
+        "Yu Zhang",
+        "Daniel Truax",
+        "Philippe Brissaud",
+        "Imran Sargusingh",
+        "Chandrashekhar Chaudhari",
+        "Chirag Dhawan",
+        "Ryan D'Aurelio",
+        "Ryan Hastings",
+        "Steven Wilssens",
+        "Derek Park",
+        "Douglas Pearce"
+      ]
+    },
+    "conifer health solutions": {
+      "canonical_name": "Conifer Health Solutions",
+      "addresses": [
+        "3560 Dallas Pkwy., Frisco TX USA 75034"
+      ],
+      "email_domains": [
+        "coniferhealth.com"
+      ],
+      "phones": [
+        "(469) 803-3000"
+      ],
+      "websites": [
+        "https://www.coniferhealth.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Tim Bedow"
+      ]
+    },
+    "barracuda networks": {
+      "canonical_name": "Barracuda Networks",
+      "addresses": [
+        "3175 Winchester Blvd Campbell CA USA 95008"
+      ],
+      "email_domains": [
+        "barracuda.com"
+      ],
+      "phones": [
+        "(408) 342-5400 , 888 268 4772"
+      ],
+      "websites": [
+        "http://www.barracudanetworks.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Jessica Haralson"
+      ]
+    },
+    "accel robotics": {
+      "canonical_name": "Accel Robotics",
+      "addresses": [
+        "4250 EXECUTIVE Sq. Ste. 200, La Jolla, CA USA 92037"
+      ],
+      "email_domains": [
+        "accelrobotics.com"
+      ],
+      "phones": [
+        "(619) 808-8010"
+      ],
+      "websites": [
+        "www.accelrobotics.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Matt Walker",
+        "Patryk Laurent"
+      ]
+    },
+    "vilynx": {
+      "canonical_name": "Vilynx",
+      "addresses": [
+        "410 Central Ave., Menlo Park CA USA 94025"
+      ],
+      "email_domains": [
+        "vilynx.com"
+      ],
+      "phones": [
+        "No Data"
+      ],
+      "websites": [
+        "www.vilynx.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Juan Carlos Riveiro"
+      ]
+    },
+    "rockwellautomation": {
+      "canonical_name": "RockwellAutomation",
+      "addresses": [
+        "12o1SouthSecond St. Milwaukee WI USA 53204"
+      ],
+      "email_domains": [
+        "ra.rockwell.com"
+      ],
+      "phones": [
+        "(414) 382-2000"
+      ],
+      "websites": [
+        "www.rockwellautomation.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Eashwer Srinivasan"
+      ]
+    },
+    "kenna security": {
+      "canonical_name": "Kenna Security",
+      "addresses": [
+        "San Francisco, CA USA"
+      ],
+      "email_domains": [
+        "kennasecurity.com"
+      ],
+      "phones": [
+        "(855) 474-7546"
+      ],
+      "websites": [
+        "https://www.kennasecurity.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Jeff Heuer"
+      ]
+    },
+    "crowdstrike": {
+      "canonical_name": "CrowdStrike",
+      "addresses": [
+        "15440 Laguna Canyon Rd #250 Irvine California United States 92618"
+      ],
+      "email_domains": [
+        "crowdstrike.com"
+      ],
+      "phones": [
+        "(888) 512-8906"
+      ],
+      "websites": [
+        "www.crowdstrike.com"
+      ],
+      "email_patterns": [
+        "first.last",
+        "flast"
+      ],
+      "names": [
+        "Sven Krasser",
+        "Ryan Nakawatase",
+        "Shawn Henry"
+      ]
+    },
+    "broadcom corporation": {
+      "canonical_name": "Broadcom Corporation",
+      "addresses": [
+        "CA USA",
+        "2901 Via Fortuna, Ste 400 Austin Texas United States 78746-7670",
+        "Morrisville North Carolina United States 27560",
+        "190 S Mathilda Ave Sunnyvale California United States 94086-0061",
+        "San Francisco California United States",
+        "5300 California Ave Irvine California United States 92617-3038",
+        "1320 Ridder Park Drive San Jose CA USA 95131"
+      ],
+      "email_domains": [
+        "broadcom.com",
+        "brocade.com"
+      ],
+      "phones": [
+        "(408) 433-8000",
+        "(408) 922-6410 C",
+        "(408) 922-6410"
+      ],
+      "websites": [
+        "https://www.broadcom.com"
+      ],
+      "email_patterns": [
+        "first.last",
+        "flast"
+      ],
+      "names": [
+        "Yuan Xing Lee",
+        "Velu Pillai",
+        "Erik Dixon (xemp-March'17)",
+        "Aiman Kabakibo",
+        "Charlie Abraham",
+        "Jason Chan",
+        "Todd Brooks"
+      ]
+    },
+    "black knight financial services": {
+      "canonical_name": "Black Knight Financial Services",
+      "addresses": [
+        "601 Riverside Avenue Jacksonville FL USA 32204"
+      ],
+      "email_domains": [
+        "bkfs.com"
+      ],
+      "phones": [
+        "(904) 854-5100"
+      ],
+      "websites": [
+        "http://www.bkfs.com/Pages/default.aspx"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Victor Mendia"
+      ]
+    },
+    "perimeterx": {
+      "canonical_name": "PerimeterX",
+      "addresses": [
+        "400 South El Camino Real Floor 14, San Mateo CA USA 94402",
+        "San Mateo, California USA"
+      ],
+      "email_domains": [
+        "perimeterx.com"
+      ],
+      "phones": [
+        "(650) 620-7800",
+        "(408) 594-5258"
+      ],
+      "websites": [
+        "https://www.perimeterx.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Bernie Cheng",
+        "Elad Koren",
+        "Eyal Kaldes",
+        "Tanweer Ali"
+      ]
+    },
+    "very good security": {
+      "canonical_name": "Very Good Security",
+      "addresses": [
+        "207 Powell Street, Suite 200 San Francisco CA USA 94102"
+      ],
+      "email_domains": [
+        "verygoodsecurity.com"
+      ],
+      "phones": [
+        "(844) 847-0232"
+      ],
+      "websites": [
+        "https://www.verygoodsecurity.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Vivek Chopra"
+      ]
+    },
+    "ipswitch inc": {
+      "canonical_name": "Ipswitch Inc",
+      "addresses": [
+        "83 Hartwell Avenue Lexington MA USA 2421",
+        "83 Hartwell Avenue Lexington MA USA"
+      ],
+      "email_domains": [
+        "ipswitch.com"
+      ],
+      "phones": [
+        "(781) 676-5700",
+        "No Data"
+      ],
+      "websites": [
+        "http://www.ipswitch.com/"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Ambar Kulkarni",
+        "Nancy Fobert",
+        "Xiaodan Ren"
+      ]
+    },
+    "conversica": {
+      "canonical_name": "Conversica",
+      "addresses": [
+        "950 Tower Lane, 12th Floor Foster City CA USA 94404",
+        "95o Tower Lane, 12th Floor Foster City CA USA 94404"
+      ],
+      "email_domains": [
+        "conversica.com"
+      ],
+      "phones": [
+        "(650) 290-7674"
+      ],
+      "websites": [
+        "www.conversica.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Victor Belfor",
+        "Brian Kaminski"
+      ]
+    },
+    "egnyte inc": {
+      "canonical_name": "Egnyte Inc",
+      "addresses": [
+        "California United States"
+      ],
+      "email_domains": [
+        "egnyte.com"
+      ],
+      "phones": [
+        "(408) 910-2420"
+      ],
+      "websites": [
+        "www.egnyte.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Marcelo Schmidt"
+      ]
+    },
+    "thomson reuters&qa": {
+      "canonical_name": "Thomson Reuters&QA",
+      "addresses": [
+        "3 Times Square New York NY USA 10036"
+      ],
+      "email_domains": [
+        "thomsonreuters.com"
+      ],
+      "phones": [
+        "(646) 223-4000"
+      ],
+      "websites": [
+        "http://thomsonreuters.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Carol Staley"
+      ]
+    },
+    "visa&qa": {
+      "canonical_name": "VISA&QA",
+      "addresses": [
+        "goo Metro Center Blvd Foster City CA USA 94404"
+      ],
+      "email_domains": [
+        "visa.com"
+      ],
+      "phones": [
+        "(877) 312-4273 / (650) 432-3200"
+      ],
+      "websites": [
+        "http://corporate.visa.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Shlomi Yehuda"
+      ]
+    },
+    "climb credit, inc": {
+      "canonical_name": "Climb Credit, Inc",
+      "addresses": [
+        "459 Broadway 4th Floor New York NY USA 10013"
+      ],
+      "email_domains": [
+        "climbcredit.com"
+      ],
+      "phones": [
+        "(888) 510-0533, 646-688-3250"
+      ],
+      "websites": [
+        "https://climbcredit.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Angela Galardi Ceresnie"
+      ]
+    },
+    "citrix systems, inc": {
+      "canonical_name": "Citrix Systems, Inc",
+      "addresses": [
+        "Austin Texas United States",
+        "CA United States",
+        "65o Townsend St San Francisco California United States 94103-5646",
+        "4988 Great America Parkway Santa Clara California United States 95054"
+      ],
+      "email_domains": [
+        "citrix.com"
+      ],
+      "phones": [
+        "(800) 424-8749,954 267 3000",
+        "(800) 424-8749, 954 267 3000",
+        "(800) 424-8749 ,9542673000P",
+        "(650-480-8000)",
+        "(408-888-5015) &(408-987-8701)"
+      ],
+      "websites": [
+        "https://www.citrix.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Ron Oglesby",
+        "Anoop Agarwal",
+        "Todd Rosenthal",
+        "Susan Davies",
+        "Rajiv Sinha"
+      ]
+    },
+    "snapdocs": {
+      "canonical_name": "Snapdocs",
+      "addresses": [
+        "100 Montgomery St. #2400 San Francisco CA USA 94104"
+      ],
+      "email_domains": [
+        "snapdocs.com"
+      ],
+      "phones": [
+        "No Data"
+      ],
+      "websites": [
+        "https://www.snapdocs.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Janet Taylor"
+      ]
+    },
+    "lendinghome": {
+      "canonical_name": "LendingHome",
+      "addresses": [
+        "1 California St. Floor 17 San Francisco CA USA 94111"
+      ],
+      "email_domains": [
+        "lendinghome.com"
+      ],
+      "phones": [
+        "(844) 415-4663"
+      ],
+      "websites": [
+        "https://www.lendinghome.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Jake Hite",
+        "Chris Karas"
+      ]
+    },
+    "housecanary": {
+      "canonical_name": "HouseCanary",
+      "addresses": [
+        "201 Spear St. San Francisco CA USA 94105"
+      ],
+      "email_domains": [
+        "housecanary.com"
+      ],
+      "phones": [
+        "(855) 218-9597, (888) 618-8823"
+      ],
+      "websites": [
+        "https://www.housecanary.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Lukas Andersen"
+      ]
+    },
+    "veros corporate": {
+      "canonical_name": "Veros Corporate",
+      "addresses": [
+        "2333 N. Broadway, Suite 350 Santa Ana CA USA 92706"
+      ],
+      "email_domains": [
+        "veros.com"
+      ],
+      "phones": [
+        "(714) 415-6300"
+      ],
+      "websites": [
+        "http://www.veros.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Michael Evans"
+      ]
+    },
+    "sage group plc": {
+      "canonical_name": "Sage Group plc",
+      "addresses": [
+        "HQ UK USA Office 1715 N Brown Rd Lawrenceville GA USA 30043"
+      ],
+      "email_domains": [
+        "sage.com"
+      ],
+      "phones": [
+        "(770) 724-4000"
+      ],
+      "websites": [
+        "www.sage.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Brian Baca"
+      ]
+    },
+    "transunion llc": {
+      "canonical_name": "TransUnion LLC",
+      "addresses": [
+        "555 W Adams St Chicago IL USA 60661"
+      ],
+      "email_domains": [
+        "transunion.com"
+      ],
+      "phones": [
+        "(410) 344-1902 / 855-681-3196"
+      ],
+      "websites": [
+        "www.transunion.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Janette Harris"
+      ]
+    },
+    "blockfi": {
+      "canonical_name": "BlockFi",
+      "addresses": [
+        "86 Chambers Street Suit 205 New York City New York USA 10007"
+      ],
+      "email_domains": [
+        "blockfi.com"
+      ],
+      "phones": [
+        "(646) 779-9688"
+      ],
+      "websites": [
+        "https://blockfi.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Ken Kan"
+      ]
+    },
+    "calyx software inc": {
+      "canonical_name": "Calyx Software Inc",
+      "addresses": [
+        "6475 Camden Avenue, Suite 207 San Jose CA uSA 95120"
+      ],
+      "email_domains": [
+        "calyxsoftware.com"
+      ],
+      "phones": [
+        "(408) 997-5525"
+      ],
+      "websites": [
+        "http://www.calyxsoftware.com"
+      ],
+      "email_patterns": [
+        "first_last"
+      ],
+      "names": [
+        "James Oh"
+      ]
+    },
+    "abrigo": {
+      "canonical_name": "Abrigo",
+      "addresses": [
+        "2331-B Riata Trace Parkway, Building 4 Suite 200 Austin, Texas TX USA 78727"
+      ],
+      "email_domains": [
+        "abrigo.com"
+      ],
+      "phones": [
+        "(512) 279-5700"
+      ],
+      "websites": [
+        "https://www.abrigo.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Wayne Roberts"
+      ]
+    },
+    "cohesity": {
+      "canonical_name": "Cohesity",
+      "addresses": [
+        "300 Park Ave, Suite 1700 San Jose CA USA 95110",
+        "300 Park Ave, Suite 1700 San"
+      ],
+      "email_domains": [
+        "cohesity.com"
+      ],
+      "phones": [
+        "(408) 657-8673",
+        "No Data"
+      ],
+      "websites": [
+        "https://www.cohesity.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Chinmaya Manjunath",
+        "Brian Spanswick",
+        "Jay Desai"
+      ]
+    },
+    "adcolony": {
+      "canonical_name": "AdColony",
+      "addresses": [
+        "11400 w. 0lympic Blvd. 12th Floor Los Angeles CA USA 90064"
+      ],
+      "email_domains": [
+        "adcolony.com"
+      ],
+      "phones": [
+        "(310) 775-8085"
+      ],
+      "websites": [
+        "http://www.adcolony.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Micha? Kluszewski"
+      ]
+    },
+    "8x8 inc": {
+      "canonical_name": "8x8 Inc",
+      "addresses": [
+        "2125 O'Neal Dr. San Jose CA USA 95131"
+      ],
+      "email_domains": [
+        "8x8.com"
+      ],
+      "phones": [
+        "No Data",
+        "(408) 727-1885",
+        "(408) 727-1885 / 866-879-8647"
+      ],
+      "websites": [
+        "http://www.8x8.com"
+      ],
+      "email_patterns": [
+        "first.last",
+        "f.last"
+      ],
+      "names": [
+        "Ram Narayanaswamy",
+        "David Sipes",
+        "Colin Carmichael"
+      ]
+    },
+    "security national mortgage": {
+      "canonical_name": "Security National Mortgage",
+      "addresses": [
+        "5300 South 360 West Salt Lake City UT USA 84123"
+      ],
+      "email_domains": [
+        "securitynational.com"
+      ],
+      "phones": [
+        "844-542-5626"
+      ],
+      "websites": [
+        "https://snmc.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Thayne Atkinson"
+      ]
+    },
+    "igneous systems inc": {
+      "canonical_name": "Igneous Systems Inc",
+      "addresses": [
+        "2401 4th Ave, Suite 200 Seattle WA USA 98121"
+      ],
+      "email_domains": [
+        "igneous.io"
+      ],
+      "phones": [
+        "(206) 504-3685 / 844 446 3687"
+      ],
+      "websites": [
+        "https://www.igneous.io"
+      ],
+      "email_patterns": [
+        "firstlast"
+      ],
+      "names": [
+        "David Clements"
+      ]
+    },
+    "opsramp": {
+      "canonical_name": "OpsRamp",
+      "addresses": [
+        "2580 North First St., Ste. 480 San Jose CA USA 95131"
+      ],
+      "email_domains": [
+        "opsramp.com"
+      ],
+      "phones": [
+        "(855) 847-8272"
+      ],
+      "websites": [
+        "https://www.opsramp.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Venkat Kankipati"
+      ]
+    },
+    "fuze": {
+      "canonical_name": "Fuze",
+      "addresses": [
+        "2 Copley Place, Floor 7 Boston MA USA 2116"
+      ],
+      "email_domains": [
+        "fuze.com"
+      ],
+      "phones": [
+        "(800) 890-1553 ,617.453.2052"
+      ],
+      "websites": [
+        "http://thinkingphones.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Colleen Bichimer White"
+      ]
+    },
+    "logmeln": {
+      "canonical_name": "LogMeln",
+      "addresses": [
+        "320 Summer Street Boston MA USA 2210"
+      ],
+      "email_domains": [
+        "logmein.com"
+      ],
+      "phones": [
+        "(781) 638-9050"
+      ],
+      "websites": [
+        "https://www.logmein.com/"
+      ],
+      "email_patterns": [
+        "flast",
+        "first.last"
+      ],
+      "names": [
+        "Anderson Dinga",
+        "Paddy Srinivasan",
+        "Chandra Gunda",
+        "Akhil Talwar",
+        "Mark Boyles",
+        "Norm Levesque"
+      ]
+    },
+    "blend": {
+      "canonical_name": "Blend",
+      "addresses": [
+        "415 Kearny Street San Francisco CA USA 94108"
+      ],
+      "email_domains": [
+        "blend.com"
+      ],
+      "phones": [
+        "(650) 550-4810"
+      ],
+      "websites": [
+        "https://blend.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Aesha Shah"
+      ]
+    },
+    "residential mortgage services, inc": {
+      "canonical_name": "Residential Mortgage Services, Inc",
+      "addresses": [
+        "24 Christopher Toppi Dr., South Portland Maine USA 4106"
+      ],
+      "email_domains": [
+        "rmsmortgage.com"
+      ],
+      "phones": [
+        "(207) 358-5951"
+      ],
+      "websites": [
+        "https://rmsmortgage.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Fran Sullivan"
+      ]
+    },
+    "servicelink": {
+      "canonical_name": "ServiceLink",
+      "addresses": [
+        "1400 Cherrington Par kway Moon Township PA USA 15108"
+      ],
+      "email_domains": [
+        "svcink.com"
+      ],
+      "phones": [
+        "(800) 777-8759, (412) 299-6200"
+      ],
+      "websites": [
+        "www.servicelinkfnf.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Todd Schneider"
+      ]
+    },
+    "scality": {
+      "canonical_name": "Scality",
+      "addresses": [
+        "77 Geary, Fifth Floor San Fransisco CA USA"
+      ],
+      "email_domains": [
+        "scality.com"
+      ],
+      "phones": [
+        "No Data"
+      ],
+      "websites": [
+        "www.scality.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Christian Kapnang"
+      ]
+    },
+    "silk": {
+      "canonical_name": "Silk",
+      "addresses": [
+        "75 Second Avenue, 6th Floor, Suite 620 Needham MA USA 2494"
+      ],
+      "email_domains": [
+        "silk.us"
+      ],
+      "phones": [
+        "(877) 982-2555"
+      ],
+      "websites": [
+        "https://silk.us"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Dani Golan"
+      ]
+    },
+    "alere inc": {
+      "canonical_name": "Alere Inc",
+      "addresses": [
+        "51 Sawyer Road, Suite 200 Waltham MA USA 02453-3448",
+        "51 Sawyer Road, Suite 200 Waltham MA USA",
+        "51 Sawyer Road, Suite 200 waltham MA USA 02453-3448"
+      ],
+      "email_domains": [
+        "alere.com"
+      ],
+      "phones": [
+        "(781) 647-3900",
+        "No Data"
+      ],
+      "websites": [
+        "http://www.alere.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Shannon Odam",
+        "Ratish Bhaskaran",
+        "Craig Jancerak",
+        "Emily Deane",
+        "Jason Hallee"
+      ]
+    },
+    "samasource": {
+      "canonical_name": "Samasource",
+      "addresses": [
+        "2017 Mission St. Ste. 301, San Francisco CA USA 94110"
+      ],
+      "email_domains": [
+        "samasource.org"
+      ],
+      "phones": [
+        "(415) 552-5090"
+      ],
+      "websites": [
+        "https://www.samasource.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Wendy Gonzalez"
+      ]
+    },
+    "abiomed": {
+      "canonical_name": "Abiomed",
+      "addresses": [
+        "22 Cherry Hill Drive Danvers MA USA 1923"
+      ],
+      "email_domains": [
+        "abiomed.com"
+      ],
+      "phones": [
+        "(978) 646-1400"
+      ],
+      "websites": [
+        "http://www.abiomed.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Michael Minogue"
+      ]
+    },
+    "vonage": {
+      "canonical_name": "Vonage",
+      "addresses": [
+        "NA"
+      ],
+      "email_domains": [
+        "vonage.com"
+      ],
+      "phones": [
+        "NA"
+      ],
+      "websites": [
+        "vonage.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Nikhil Lingannagari"
+      ]
+    },
+    "kemp technologies": {
+      "canonical_name": "KEMP Technologies",
+      "addresses": [
+        "989 6th Ave. 16th Fl., New York City, NY USA 10018"
+      ],
+      "email_domains": [
+        "kemptechnologies.com"
+      ],
+      "phones": [
+        "(631) 345-5292"
+      ],
+      "websites": [
+        "https://kemptechnologies.com/"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Ray Downes"
+      ]
+    },
+    "arcserve": {
+      "canonical_name": "Arcserve",
+      "addresses": [
+        "8855 Columbine Rd Suite 150 Eden Prairie Minnesota USA 55347"
+      ],
+      "email_domains": [
+        "arcserve.com"
+      ],
+      "phones": [
+        "(844) 639-6792"
+      ],
+      "websites": [
+        "https://www.arcserve.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Tatsuya Shimotani"
+      ]
+    },
+    "windstream corp": {
+      "canonical_name": "Windstream Corp",
+      "addresses": [
+        "4001 N Rodney Parham Rd Little Rock Arkansas United",
+        "4001 N Rodney Parham Rd Little Rock Arkansas United States 72212-2459"
+      ],
+      "email_domains": [
+        "windstream.com"
+      ],
+      "phones": [
+        "No Data",
+        "(501) 748-7000"
+      ],
+      "websites": [
+        "windstream.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Stephen Farkouh",
+        "Robert Bentley",
+        "TJ Reece",
+        "Tom Boggs",
+        "Mike Blackmon",
+        "John Sefcik",
+        "Karl Renaut"
+      ]
+    },
+    "imperva": {
+      "canonical_name": "Imperva",
+      "addresses": [
+        "3400 Bridge Parkway, Suite 200 Redwood Shores CA USA 94065"
+      ],
+      "email_domains": [
+        "imperva.com"
+      ],
+      "phones": [
+        "(650) 345-9000"
+      ],
+      "websites": [
+        "http://www.imperva.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Steven Schoenfeld"
+      ]
+    },
+    "coresite": {
+      "canonical_name": "CoreSite",
+      "addresses": [
+        "Denver, CO USA"
+      ],
+      "email_domains": [
+        "coresite.com"
+      ],
+      "phones": [
+        "(303) 222-7317"
+      ],
+      "websites": [
+        "https://www.coresite.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Diamond Folks"
+      ]
+    },
+    "resmed inc": {
+      "canonical_name": "Resmed Inc",
+      "addresses": [
+        "9001 SPECTRUM CENTER Blvd., San Diego, California CA USA 92123"
+      ],
+      "email_domains": [
+        "resmed.com"
+      ],
+      "phones": [
+        "(858) 746-2400"
+      ],
+      "websites": [
+        "https://www.resmed.com/"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Todd Friedman"
+      ]
+    },
+    "idera inc": {
+      "canonical_name": "Idera Inc",
+      "addresses": [
+        "2950 North Loop Freeway West Suite 700 Houston TX USA 77092"
+      ],
+      "email_domains": [
+        "idera.com"
+      ],
+      "phones": [
+        "(713) 523-4433"
+      ],
+      "websites": [
+        "http://www.idera.com"
+      ],
+      "email_patterns": [],
+      "names": [
+        "Matt o'connell"
+      ]
+    },
+    "star2star communications": {
+      "canonical_name": "Star2Star Communications",
+      "addresses": [
+        "600 Tallevast Road, Suite 202, Sarasota FL USA 34243"
+      ],
+      "email_domains": [
+        "star2star.com"
+      ],
+      "phones": [
+        "(941) 234-0001"
+      ],
+      "websites": [
+        "http://www.star2star.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Sheila Jordan"
+      ]
+    },
+    "datastax": {
+      "canonical_name": "DataStax",
+      "addresses": [
+        "Silicon Valley 3975 Freedom Circle 4th Floor Santa Clara CA uSA 95054"
+      ],
+      "email_domains": [
+        "datastax.com"
+      ],
+      "phones": [
+        "(650) 389-6000 ,408-933-3123"
+      ],
+      "websites": [
+        "http://www.datastax.com"
+      ],
+      "email_patterns": [
+        "first.last"
+      ],
+      "names": [
+        "Aaron Morton"
+      ]
+    },
+    "panzura": {
+      "canonical_name": "Panzura",
+      "addresses": [
+        "695 Campbell Technology Parkway, #225 Campbell CA USA 95008"
+      ],
+      "email_domains": [
+        "panzura.com"
+      ],
+      "phones": [
+        "(408) 457-8504"
+      ],
+      "websites": [
+        "https://panzura.com"
+      ],
+      "email_patterns": [
+        "flast"
+      ],
+      "names": [
+        "Alex Chang",
+        "Jill Stelfox"
+      ]
+    }
+  },
+  "address_corrections": {
+    "0?Nel": "O'Neal",
+    "0?nel": "O'Neal",
+    "0?NEL": "O'NEAL",
+    "0?Ne": "O'Nea"
+  }
+}

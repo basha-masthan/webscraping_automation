@@ -714,6 +714,41 @@ async function fetchVerificationRecords() {
 }
 
 let currentInspectQrNumber = null;
+let verificationNavigation = [];
+let verificationNavigationIndex = -1;
+let verificationFixInProgress = false;
+
+async function loadVerificationNavigation(qrNumber) {
+  const params = new URLSearchParams({
+    page: 1,
+    // The dashboard currently handles a maximum of 1,500 QR forms. Fetching the
+    // matching list here lets the popup continue across table pages.
+    limit: 2000,
+    status: state.verifyFilter,
+    search: state.verifySearch
+  });
+  const res = await fetch(`/api/verify/results?${params.toString()}`);
+  if (!res.ok) throw new Error('Failed to load verification navigation');
+
+  const data = await res.json();
+  verificationNavigation = data.records.map(record => Number(record.qr_number));
+  verificationNavigationIndex = verificationNavigation.indexOf(Number(qrNumber));
+}
+
+function updateVerificationNavigation() {
+  const previousBtn = document.getElementById('btnVerifyPrevious');
+  const nextBtn = document.getElementById('btnVerifyNext');
+  const position = document.getElementById('verifyModalPosition');
+  const hasCurrentRecord = verificationNavigationIndex >= 0;
+
+  if (previousBtn) previousBtn.disabled = !hasCurrentRecord || verificationNavigationIndex === 0;
+  if (nextBtn) nextBtn.disabled = !hasCurrentRecord || verificationNavigationIndex >= verificationNavigation.length - 1;
+  if (position) {
+    position.textContent = hasCurrentRecord
+      ? `${verificationNavigationIndex + 1} of ${verificationNavigation.length}`
+      : 'Record not in current list';
+  }
+}
 
 async function setQrStatus(qrNumber, status) {
   try {
@@ -725,7 +760,8 @@ async function setQrStatus(qrNumber, status) {
     if (!res.ok) throw new Error('Failed to update status');
     const data = await res.json();
     if (data.success) {
-      showToast(`QRCode - ${qrNumber} marked as ${status.toUpperCase()}`, status === 'resolved' ? 'success' : 'error');
+      const statusLabel = status === 'admin_verified' ? 'VERIFIED BY ADMIN' : status.toUpperCase();
+      showToast(`QRCode - ${qrNumber} marked as ${statusLabel}`, status === 'blocked' ? 'error' : 'success');
       fetchVerificationStats();
       fetchVerificationRecords();
     }
@@ -741,6 +777,7 @@ function renderVerificationStats() {
   const totalEl = document.getElementById('verifyStatTotal');
   const resEl = document.getElementById('verifyStatResolved');
   const blockEl = document.getElementById('verifyStatBlocked');
+  const adminEl = document.getElementById('verifyStatAdminVerified');
   const badgeVerify = document.getElementById('tabBadgeVerify');
   const cardFlaggedLow = document.getElementById('cardFlaggedLow');
 
@@ -748,6 +785,7 @@ function renderVerificationStats() {
   if (totalEl) totalEl.textContent = stats.total_verified;
   if (resEl) resEl.textContent = stats.resolved_count ?? stats.perfect_count ?? 0;
   if (blockEl) blockEl.textContent = stats.blocked_count ?? stats.low_count ?? 0;
+  if (adminEl) adminEl.textContent = stats.admin_verified_count ?? 0;
   if (badgeVerify) badgeVerify.textContent = stats.total_verified;
 
   // Highlight blocked card if blocked_count > 0
@@ -778,14 +816,18 @@ function renderVerificationTable(records) {
 
   tbody.innerHTML = records.map(r => {
     const acc = Number(r.accuracy).toFixed(1);
-    const isBlocked = r.status === 'blocked' || (Number(acc) < 100.0 && r.status !== 'resolved');
-    const isResolved = r.status === 'resolved' || (!isBlocked && Number(acc) >= 100.0);
+    const isAdminVerified = r.status === 'admin_verified';
+    const isBlocked = !isAdminVerified && (r.status === 'blocked' || (Number(acc) < 100.0 && r.status !== 'resolved'));
+    const isResolved = !isAdminVerified && (r.status === 'resolved' || (!isBlocked && Number(acc) >= 100.0));
 
     let accBadgeClass = 'acc-minor';
     let statusBadge = '<span class="badge badge-danger">Blocked</span>';
     let rowClass = '';
 
-    if (isResolved) {
+    if (isAdminVerified) {
+      statusBadge = '<span class="badge badge-purple">Verified by Admin</span>';
+      accBadgeClass = Number(acc) >= 100.0 ? 'acc-perfect' : 'acc-minor';
+    } else if (isResolved) {
       statusBadge = '<span class="badge badge-success">Resolved</span>';
       if (Number(acc) >= 100.0) {
         accBadgeClass = 'acc-perfect';
@@ -835,6 +877,7 @@ function renderVerificationTable(records) {
         <td>
           <strong class="${isBlocked ? 'text-danger font-bold' : ''}">${escapeHtml(r.qr_label)}</strong>
           ${isBlocked ? '<span class="badge badge-danger ml-1" style="font-size:0.65rem;">BLOCKED</span>' : ''}
+          ${isAdminVerified ? '<span class="badge badge-purple ml-1" style="font-size:0.65rem;">ADMIN VERIFIED</span>' : ''}
         </td>
         <td>
           <span class="badge-accuracy ${accBadgeClass}">
@@ -857,6 +900,9 @@ function renderVerificationTable(records) {
             </button>
             <button class="btn btn-xs btn-action-blocked ${isBlocked ? 'active-status' : ''}" onclick="setQrStatus(${r.qr_number}, 'blocked')" title="Mark QRCode as Blocked">
               Blocked
+            </button>
+            <button class="btn btn-xs btn-action-admin-verified ${isAdminVerified ? 'active-status' : ''}" onclick="setQrStatus(${r.qr_number}, 'admin_verified')" title="Mark QRCode as verified by an administrator and exclude it from future verification">
+              Admin Verified
             </button>
           </div>
         </td>
@@ -887,8 +933,14 @@ function renderVerificationPagination(total) {
   if (btnNext) btnNext.disabled = end >= total;
 }
 
-async function openVerificationModal(qrNumber) {
+async function openVerificationModal(qrNumber, refreshNavigation = true) {
   try {
+    if (refreshNavigation) {
+      await loadVerificationNavigation(qrNumber);
+    } else {
+      verificationNavigationIndex = verificationNavigation.indexOf(Number(qrNumber));
+    }
+    updateVerificationNavigation();
     currentInspectQrNumber = qrNumber;
     const res = await fetch(`/api/verify/record?qr=${qrNumber}`);
     if (!res.ok) throw new Error('Failed to fetch verification detail');
@@ -906,9 +958,13 @@ async function openVerificationModal(qrNumber) {
 
     // Status Badge inside Modal
     const statusBadge = document.getElementById('verifyModalStatusBadge');
-    const isBlocked = rec.status === 'blocked' || (Number(acc) < 100 && rec.status !== 'resolved');
+    const isAdminVerified = rec.status === 'admin_verified';
+    const isBlocked = !isAdminVerified && (rec.status === 'blocked' || (Number(acc) < 100 && rec.status !== 'resolved'));
     if (statusBadge) {
-      if (isBlocked) {
+      if (isAdminVerified) {
+        statusBadge.textContent = 'Verified by Admin';
+        statusBadge.className = 'badge badge-purple';
+      } else if (isBlocked) {
         statusBadge.textContent = 'Blocked';
         statusBadge.className = 'badge badge-danger';
       } else {
@@ -947,26 +1003,39 @@ async function openVerificationModal(qrNumber) {
       { key: 'office_contact', label: 'Office Contact' }
     ];
 
-    const fieldsTbody = document.getElementById('verifyModalFieldsBody');
-    fieldsTbody.innerHTML = fieldsList.map(f => {
+    const portalFields = document.getElementById('verifyModalPortalFields');
+    const extractedFields = document.getElementById('verifyModalExtractedFields');
+    const portalFieldsHtml = fieldsList.map(f => {
       const webVal = webData[f.key] || '';
-      const imgVal = imgData[f.key] || '';
       const fScore = Number(scores[f.key] ?? 100.0).toFixed(1);
       const isMatch = Number(fScore) >= 100.0;
-      const statusHtml = isMatch
-        ? '<span class="badge badge-success text-xs">Match</span>'
-        : `<span class="badge badge-danger text-xs">${fScore}%</span>`;
+      const matchClass = isMatch ? 'field-match' : 'field-mismatch';
 
       return `
-        <tr>
-          <td><strong>${f.label}</strong></td>
-          <td class="val-portal">${escapeHtml(webVal) || '<span class="text-muted">(empty)</span>'}</td>
-          <td class="val-image">${escapeHtml(imgVal) || '<span class="text-muted">(empty)</span>'}</td>
-          <td style="text-align: center; font-weight: 700;">${fScore}%</td>
-          <td style="text-align: center;">${statusHtml}</td>
-        </tr>
+        <div class="verify-field-row ${matchClass}">
+          <label for="verifyEdit_${f.key}">${f.label}</label>
+          <div class="verify-field-input-wrap">
+            ${f.key === 'address'
+              ? `<textarea id="verifyEdit_${f.key}" class="verify-edit-input" data-fix-field="${f.key}" aria-label="Edited ${f.label}">${escapeHtml(webVal)}</textarea>`
+              : `<input id="verifyEdit_${f.key}" class="verify-edit-input" data-fix-field="${f.key}" aria-label="Edited ${f.label}" value="${escapeHtml(webVal)}">`}
+            <span class="verify-field-score ${matchClass}">${fScore}% ${isMatch ? 'match' : 'mismatch'}</span>
+          </div>
+        </div>
       `;
     }).join('');
+    const extractedFieldsHtml = fieldsList.map(f => {
+      const imgVal = imgData[f.key] || '';
+      const fScore = Number(scores[f.key] ?? 100.0).toFixed(1);
+      const matchClass = Number(fScore) >= 100.0 ? 'field-match' : 'field-mismatch';
+      return `
+        <div class="verify-field-row ${matchClass}">
+          <span class="verify-extracted-label">${f.label}</span>
+          <div class="verify-extracted-value">${escapeHtml(imgVal) || '<span class="text-muted">(empty)</span>'}</div>
+        </div>
+      `;
+    }).join('');
+    if (portalFields) portalFields.innerHTML = portalFieldsHtml;
+    if (extractedFields) extractedFields.innerHTML = extractedFieldsHtml;
 
     // AI Note & Discrepancy Card
     const aiBox = document.getElementById('verifyModalAiNoteBox');
@@ -1135,7 +1204,7 @@ function setupVerification() {
     };
   }
 
-  // Modal Action Buttons (Resolved / Blocked)
+  // Modal Action Buttons (Resolved / Blocked / Admin Verified)
   const handleModalResolve = async () => {
     if (!currentInspectQrNumber) return;
     await setQrStatus(currentInspectQrNumber, 'resolved');
@@ -1156,10 +1225,32 @@ function setupVerification() {
     }
   };
 
+  const handleModalAdminVerified = async () => {
+    if (!currentInspectQrNumber) return;
+    await setQrStatus(currentInspectQrNumber, 'admin_verified');
+    const statusBadge = document.getElementById('verifyModalStatusBadge');
+    if (statusBadge) {
+      statusBadge.textContent = 'Verified by Admin';
+      statusBadge.className = 'badge badge-purple';
+    }
+  };
+
   document.getElementById('btnModalResolve')?.addEventListener('click', handleModalResolve);
   document.getElementById('btnModalResolveTop')?.addEventListener('click', handleModalResolve);
   document.getElementById('btnModalBlock')?.addEventListener('click', handleModalBlock);
   document.getElementById('btnModalBlockTop')?.addEventListener('click', handleModalBlock);
+  document.getElementById('btnModalAdminVerified')?.addEventListener('click', handleModalAdminVerified);
+  document.getElementById('btnModalAdminVerifiedTop')?.addEventListener('click', handleModalAdminVerified);
+  document.getElementById('btnModalFixForm')?.addEventListener('click', submitCorrectedVerificationForm);
+
+  const openAdjacentVerification = (direction) => {
+    const nextIndex = verificationNavigationIndex + direction;
+    if (nextIndex < 0 || nextIndex >= verificationNavigation.length) return;
+    openVerificationModal(verificationNavigation[nextIndex], false);
+  };
+
+  document.getElementById('btnVerifyPrevious')?.addEventListener('click', () => openAdjacentVerification(-1));
+  document.getElementById('btnVerifyNext')?.addEventListener('click', () => openAdjacentVerification(1));
 
   // Close modals
   const vCloseBtn = document.getElementById('verifyModalCloseBtn');
@@ -1171,6 +1262,80 @@ function setupVerification() {
     window.addEventListener('click', (e) => {
       if (e.target === vModal) vModal.classList.remove('show');
     });
+
+    window.addEventListener('keydown', (e) => {
+      if (!vModal.classList.contains('show')) return;
+      if (e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (e.key === 'ArrowLeft') openAdjacentVerification(-1);
+      if (e.key === 'ArrowRight') openAdjacentVerification(1);
+    });
+  }
+}
+
+async function submitCorrectedVerificationForm() {
+  if (!currentInspectQrNumber || verificationFixInProgress) return;
+
+  const qrNumber = Number(currentInspectQrNumber);
+  const formData = {};
+  document.querySelectorAll('#verifyModalPortalFields [data-fix-field]').forEach(input => {
+    formData[input.dataset.fixField] = input.value.trim();
+  });
+
+  const emptyFields = Object.entries(formData).filter(([, value]) => !value).map(([key]) => key.replaceAll('_', ' '));
+  const status = document.getElementById('verifyFixStatus');
+  const button = document.getElementById('btnModalFixForm');
+  if (emptyFields.length) {
+    if (status) status.textContent = `Fill every field first: ${emptyFields.join(', ')}.`;
+    return;
+  }
+  if (!window.confirm(`Open a new browser window, sign into the portal, and submit the edited data for QRCode - ${qrNumber}?`)) return;
+
+  verificationFixInProgress = true;
+  if (button) button.disabled = true;
+  if (status) status.textContent = 'Starting portal correction...';
+
+  try {
+    const response = await fetch('/api/fix-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ qr_number: qrNumber, data: formData })
+    });
+    const started = await response.json();
+    if (!response.ok || !started.success) throw new Error(started.error || started.message || 'Could not start the portal correction.');
+    if (status) status.textContent = started.message;
+
+    let job;
+    do {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const progressResponse = await fetch(`/api/fix-form/status?id=${encodeURIComponent(started.job_id)}`);
+      const progress = await progressResponse.json();
+      if (!progressResponse.ok) throw new Error(progress.error || 'Could not read correction progress.');
+      job = progress;
+      if (status) status.textContent = progress.message;
+    } while (job.running);
+
+    if (job.submitted) {
+      await fetchVerificationStats();
+      await fetchVerificationRecords();
+      if (Number(currentInspectQrNumber) === qrNumber) {
+        await openVerificationModal(qrNumber, false);
+      }
+    }
+
+    if (job.success) {
+      if (status) status.textContent = job.message;
+      showToast(job.message, 'success');
+    } else {
+      if (status) status.textContent = job.message;
+      showToast(job.message, 'error');
+    }
+  } catch (err) {
+    console.error('Portal correction error:', err);
+    if (status) status.textContent = err.message || 'Portal correction failed.';
+    showToast(err.message || 'Portal correction failed.', 'error');
+  } finally {
+    verificationFixInProgress = false;
+    if (button) button.disabled = false;
   }
 }
 

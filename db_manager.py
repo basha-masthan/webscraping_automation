@@ -59,6 +59,12 @@ def init_db():
                 verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS admin_verified_qrs (
+                qr_number INTEGER PRIMARY KEY,
+                verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
         # Migration for existing verification_records table
         try:
             cursor.execute("ALTER TABLE verification_records ADD COLUMN ai_note TEXT DEFAULT ''")
@@ -112,6 +118,14 @@ def save_qr_record(qr_number: int, data: dict):
         """, (now_str, qr_number))
         conn.commit()
     print(f"[DB] Successfully saved QRCode - {qr_number} into database.")
+    # Online Brain Learning: Update local Brain model with verified record
+    try:
+        from brain_engine import get_brain_engine
+        brain = get_brain_engine()
+        raw_t = f"{data.get('name', '')} * {data.get('designation', '')} * {data.get('company', '')} * {data.get('website', '')} * {data.get('address', '')} * {data.get('email', '')} * {data.get('office_contact', '')}"
+        brain.learn_single_record(qr_number, raw_t, data)
+    except Exception as e:
+        pass
 
 
 def get_last_qr_number() -> int:
@@ -134,6 +148,21 @@ def get_all_completed_qrs() -> set:
         cursor = conn.cursor()
         cursor.execute("SELECT qr_number FROM qr_records")
         return {row[0] for row in cursor.fetchall()}
+
+
+def get_unverified_completed_qrs() -> list:
+    """Return completed form numbers that do not have a verification record yet."""
+    init_db()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT q.qr_number
+            FROM qr_records AS q
+            LEFT JOIN verification_records AS v ON v.qr_number = q.qr_number
+            WHERE v.qr_number IS NULL
+            ORDER BY q.qr_number ASC
+        """)
+        return [row[0] for row in cursor.fetchall()]
 
 
 def delete_qr_record(qr_number: int) -> bool:
@@ -237,6 +266,56 @@ def save_unfilled_record(qr_number: int, reason: str, missing_fields=None, raw_d
     print(f"[DB] Saved QRCode - {qr_number} to Unfilled Forms. Reason: {reason}")
 
 
+def mark_failure_in_db(qr_number: int, reason: str, missing_fields=None, raw_data=None, status: str = "failure_occurred_langchain_pending"):
+    """
+    Audit-First: Immediately record a failure occurrence in SQLite before running LangChain recovery.
+    Guarantees that every failure is permanently tracked in the database.
+    """
+    save_unfilled_record(
+        qr_number=qr_number,
+        reason=reason,
+        missing_fields=missing_fields,
+        raw_data=raw_data,
+        status=status
+    )
+    print(f"[DB Audit] Failure logged in DB for QRCode - {qr_number} (status='{status}'). Initiating LangChain recovery...")
+
+
+def update_failure_status(qr_number: int, status: str, reason: str = None, raw_data=None):
+    """Update status of a failed/unfilled record after LangChain execution."""
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        import json
+        raw_str = json.dumps(raw_data, default=str) if isinstance(raw_data, (dict, list)) else (str(raw_data) if raw_data is not None else None)
+
+        if reason and raw_str is not None:
+            cursor.execute("""
+                UPDATE unfilled_records
+                SET status = ?, reason = ?, raw_data = ?, updated_at = ?
+                WHERE qr_number = ?
+            """, (status, reason, raw_str, now_str, qr_number))
+        elif reason:
+            cursor.execute("""
+                UPDATE unfilled_records
+                SET status = ?, reason = ?, updated_at = ?
+                WHERE qr_number = ?
+            """, (status, reason, now_str, qr_number))
+        elif raw_str is not None:
+            cursor.execute("""
+                UPDATE unfilled_records
+                SET status = ?, raw_data = ?, updated_at = ?
+                WHERE qr_number = ?
+            """, (status, raw_str, now_str, qr_number))
+        else:
+            cursor.execute("""
+                UPDATE unfilled_records
+                SET status = ?, updated_at = ?
+                WHERE qr_number = ?
+            """, (status, now_str, qr_number))
+        conn.commit()
+
+
 def get_unfilled_records(status_filter: str = None) -> list:
     """Fetch unfilled/skipped records, optionally filtered by status ('unfilled', 'resolved', etc.)."""
     init_db()
@@ -259,11 +338,11 @@ def get_unfilled_records(status_filter: str = None) -> list:
 
 
 def get_all_unfilled_qrs() -> set:
-    """Return a set of all QR numbers currently marked as 'unfilled'."""
+    """Return a set of all QR numbers currently unresolved (status != 'resolved')."""
     init_db()
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT qr_number FROM unfilled_records WHERE status = 'unfilled'")
+        cursor.execute("SELECT qr_number FROM unfilled_records WHERE status != 'resolved'")
         return {row[0] for row in cursor.fetchall()}
 
 
@@ -359,6 +438,9 @@ def save_verification_record(qr_number: int, qr_label: str, accuracy: float, sta
 
     with get_connection() as conn:
         cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM admin_verified_qrs WHERE qr_number = ?", (qr_number,))
+        if cursor.fetchone():
+            status = "admin_verified"
         cursor.execute("""
             INSERT INTO verification_records (
                 qr_number, qr_label, accuracy, status, website_data,
@@ -367,7 +449,10 @@ def save_verification_record(qr_number: int, qr_label: str, accuracy: float, sta
             ON CONFLICT(qr_number) DO UPDATE SET
                 qr_label = excluded.qr_label,
                 accuracy = excluded.accuracy,
-                status = excluded.status,
+                status = CASE
+                    WHEN verification_records.status = 'admin_verified' THEN 'admin_verified'
+                    ELSE excluded.status
+                END,
                 website_data = excluded.website_data,
                 image_data = excluded.image_data,
                 field_scores = excluded.field_scores,
@@ -384,7 +469,13 @@ def save_verification_record(qr_number: int, qr_label: str, accuracy: float, sta
 
 
 def get_verification_records(filter_status: str = "", search: str = "", limit: int = None, offset: int = 0) -> list:
-    """Fetch verification records with optional status filter, search query, and pagination."""
+    """Fetch verification records with optional status filter, search query, and pagination.
+
+    Admin approvals made during the command-line data-entry flow are recorded in
+    ``admin_verified_qrs`` before an OCR verification result necessarily exists.
+    Include those approvals as lightweight verification records so the dashboard
+    list and the "Verified by Admin" count always describe the same QR codes.
+    """
     init_db()
     import json
     with get_connection() as conn:
@@ -402,7 +493,31 @@ def get_verification_records(filter_status: str = "", search: str = "", limit: i
             params.extend([term, term, term])
 
         where_sql = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-        query = f"SELECT * FROM verification_records {where_sql} ORDER BY qr_number ASC"
+        query = f"""
+            SELECT * FROM (
+                SELECT * FROM verification_records
+                UNION ALL
+                SELECT
+                    a.qr_number,
+                    COALESCE(q.qr_label, 'QRCode - ' || a.qr_number) AS qr_label,
+                    100.0 AS accuracy,
+                    'admin_verified' AS status,
+                    '{{}}' AS website_data,
+                    '{{}}' AS image_data,
+                    '{{}}' AS field_scores,
+                    '[]' AS discrepancies,
+                    '' AS image_url,
+                    '' AS ocr_raw_text,
+                    a.verified_at AS verified_at,
+                    'Approved by an administrator during data entry. No separate OCR verification scan was saved.' AS ai_note
+                FROM admin_verified_qrs AS a
+                LEFT JOIN verification_records AS v ON v.qr_number = a.qr_number
+                LEFT JOIN qr_records AS q ON q.qr_number = a.qr_number
+                WHERE v.qr_number IS NULL
+            ) AS verification_results
+            {where_sql}
+            ORDER BY qr_number ASC
+        """
 
         if limit is not None:
             query += " LIMIT ? OFFSET ?"
@@ -433,32 +548,42 @@ def get_verification_records(filter_status: str = "", search: str = "", limit: i
 
 
 def get_single_verification(qr_number: int) -> dict:
-    """Fetch a single verification record by QR number."""
-    init_db()
-    import json
-    with get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM verification_records WHERE qr_number = ?", (qr_number,))
-        row = cursor.fetchone()
-        if not row:
-            return None
-        d = dict(row)
-        for field in ["website_data", "image_data", "field_scores", "discrepancies"]:
-            try:
-                d[field] = json.loads(d[field])
-            except Exception:
-                pass
-        return d
+    """Fetch one verification record, including command-line admin approvals."""
+    records = get_verification_records(filter_status="", search="")
+    for record in records:
+        if record["qr_number"] == qr_number:
+            return record
+    return None
 
 
 def update_verification_status(qr_number: int, status: str) -> bool:
-    """Updates the status of a verification record ('resolved', 'blocked')."""
+    """Updates the status of a verification record."""
     init_db()
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("UPDATE verification_records SET status = ? WHERE qr_number = ?", (status.lower(), qr_number))
+        normalized_status = status.lower()
+        cursor.execute("UPDATE verification_records SET status = ? WHERE qr_number = ?", (normalized_status, qr_number))
+        updated = cursor.rowcount > 0
+        if normalized_status == "admin_verified":
+            cursor.execute("INSERT OR REPLACE INTO admin_verified_qrs (qr_number, verified_at) VALUES (?, ?)", (qr_number, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            # A QR can be approved from the dashboard before an OCR result exists.
+            # The approval marker is itself enough for it to appear in the list.
+            updated = True
+        elif updated:
+            cursor.execute("DELETE FROM admin_verified_qrs WHERE qr_number = ?", (qr_number,))
         conn.commit()
-        return cursor.rowcount > 0
+        return updated
+
+
+def mark_admin_verified(qr_number: int) -> None:
+    """Persist an operator's final approval, even before a verification record exists."""
+    init_db()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute("INSERT OR REPLACE INTO admin_verified_qrs (qr_number, verified_at) VALUES (?, ?)", (qr_number, now_str))
+        cursor.execute("UPDATE verification_records SET status = 'admin_verified' WHERE qr_number = ?", (qr_number,))
+        conn.commit()
 
 
 def get_verification_stats() -> dict:
@@ -484,6 +609,9 @@ def get_verification_stats() -> dict:
         cursor.execute("SELECT COUNT(*) FROM verification_records WHERE status = 'resolved' OR status = 'perfect'")
         resolved_count = cursor.fetchone()[0]
 
+        cursor.execute("SELECT COUNT(*) FROM admin_verified_qrs")
+        admin_verified_count = cursor.fetchone()[0]
+
         cursor.execute("SELECT qr_number, qr_label, accuracy FROM verification_records WHERE status = 'blocked' OR accuracy < 90.0 ORDER BY accuracy ASC")
         flagged_qrs = [dict(r) for r in cursor.fetchall()]
 
@@ -495,6 +623,7 @@ def get_verification_stats() -> dict:
             "low_count": low_count,
             "blocked_count": blocked_count,
             "resolved_count": resolved_count,
+            "admin_verified_count": admin_verified_count,
             "flagged_qrs": flagged_qrs
         }
 

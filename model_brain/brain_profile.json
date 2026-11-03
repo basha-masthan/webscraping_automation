@@ -1,0 +1,19 @@
+{
+  "version": "2.0-adaptive",
+  "total_cards_trained": 918,
+  "last_trained_at": "2026-10-29 15:34:14",
+  "status": "trained",
+  "unique_domains": 208,
+  "unique_designations": 543,
+  "unique_companies": 181,
+  "exemplar_count": 409,
+  "avg_field_layout_order": {
+    "name": 0.0,
+    "designation": 0.093,
+    "company": 0.28,
+    "website": 0.352,
+    "address": 0.492,
+    "email": 0.757,
+    "office_contact": 0.911
+  }
+}

@@ -21,10 +21,12 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 ## 2. Key Safety & Accuracy Features
 
-1. **Master Multi-Layer AI Extraction Architecture**:
+1. **Master LangChain Multi-Model Ensemble & Spacing Arbiter**:
    - **Layer 1 (Dual-Pass RapidOCR)**: Runs on both the unpadded raw image (protecting Row 1 from being dropped) and padded image, automatically selecting the pass with maximum text and row coverage.
-   - **Layer 2 (Multi-Provider, Multi-Model AI Switching)**: Automatically cycles through multiple LLM models across providers (`openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`, `meta-llama/llama-3.3-70b-instruct`, etc.) if any model errors or is rate-limited.
-   - **Layer 3 (Pure Python Extraction WITHOUT AI)**: If any AI model is unavailable, rate-limited (HTTP 429), or misses a field, a deterministic pure-Python semantic rule parser extracts and backfills all 7 fields directly from the card text with 0 dependency on external AI APIs.
+   - **Layer 2 (LangChain 3-to-5 Model Parallel Ensemble & Majority Voting)**: Simultaneously queries 3 to 5 diverse models (Groq `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`, OpenRouter `meta-llama/llama-3.3-70b-instruct`, `google/gemini-2.0-flash-001`). Aggregates candidates using field-by-field weighted majority voting.
+   - **Anti-Concatenation & Spacing Protection**: Directly prevents compound word fusions (e.g. `Ram Power` becoming `RamPower`). Favors space-separated words over collapsed CamelCase tokens and validates against original OCR character gaps.
+   - **Database-First Failure Protocol**: Any extraction anomaly or missing field is immediately audited and logged in SQLite (`status='failure_occurred_langchain_pending'`) before running LangChain consensus recovery. If resolved, status updates to `'resolved_by_langchain'`.
+   - **Layer 3 (Pure Python Extraction WITHOUT AI)**: Deterministic pure-Python semantic rule parser as safety backup with 0 dependency on external AI APIs.
    - **Layer 4 (Multimodal Vision AI Fallback)**: Reads raw pixels when text is heavily obscured or complex.
    - **Layer 5 (Dual Capture - Screen CDP + Server Download)**: Captures on-screen rendered pixels alongside server downloads for full image integrity.
 
@@ -66,7 +68,8 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
    - When the timer reaches 0, automatically clicks **"Generate QRCode"**, clicks **"Next"** on the popup, and updates the database.
 
 7. **Batch Rest System**:
-   - After completing a batch of forms in a row (e.g. 22 to 35 forms), takes a randomized long break (e.g. 15 to 45 minutes) with a live countdown, then continues to the next batch.
+   - At startup, choose the QR number to begin with, the inspection delay between forms, the batch size, and the break duration.
+   - After each batch, automatically cross-checks submitted records that have not been verified yet during the break, then waits out any remaining break time before continuing.
 
 ---
 
@@ -91,9 +94,11 @@ Then visit **`http://localhost:5000`** in any web browser.
    - Displays exact error reasons and highlighted missing field tags.
    - "Fill & Resolve" modal allowing you to fill missing fields manually and submit straight to the completed database.
    - Quick "Mark as Resolved" and "Export to CSV/JSON" buttons.
-3. **Manual QR Entry / Edit**:
+3. **Verification Corrections**:
+   - Edit the submitted fields in a verification popup, then choose **Fix & Submit to Portal** to open a visible browser, sign in, submit that QR, and refresh its verification result.
+4. **Manual QR Entry / Edit**:
    - Fill or edit any QR number directly into the local SQLite database.
-4. **Live Controls**:
+5. **Live Controls**:
    - Real-time auto-refresh (5s, 10s, 30s).
    - "Test Alert Beep" button to test audible alerts.
 
@@ -147,5 +152,25 @@ You can verify all submitted forms directly against their original source card i
   ```
 - **View Verification Results on Web Dashboard**:
   Open `http://localhost:5000` and click the **Verify Submissions** tab.
+
+---
+
+## 6. Adaptive Brain Model & Pattern Memory Engine (`brain_engine.py`)
+
+A fully local, portable, self-improving cognitive memory engine that learns patterns from verified business cards and guides the LangChain ensemble.
+
+- **Portability Across Devices**:
+  All learned knowledge graphs, vocabulary banks, and exemplar memories are persisted in `model_brain/`. When you copy this project folder to any other computer, the trained Brain transfers along with it immediately without needing retraining or external GPU setups.
+- **Continuous Learning**:
+  Every time a QR code is submitted and verified into `qr_database.db`, the Brain instantly learns the new card structure and updates its memory bank online.
+- **Dynamic Few-Shot Exemplars**:
+  For every new card processed, the Brain retrieves the top matching verified examples from its memory bank and injects them directly into the LangChain system prompt, ensuring the LLMs never hallucinate or collapse word spacing.
+- **6th Ensemble Model (Model 0)**:
+  The Brain performs fast (<5ms) deterministic local inference and casts an authoritative weighted vote alongside cloud models in majority voting.
+- **Check Status Anytime**:
+  ```powershell
+  python status.py
+  # or double-click status.bat
+  ```
 
 #
