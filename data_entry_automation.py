@@ -48,7 +48,10 @@ from db_manager import (
     mark_admin_verified,
     delete_qr_record,
     list_records,
-    get_stats
+    get_stats,
+    get_unresolved_unfilled_records,
+    scan_and_track_all_unfilled_qrs,
+    sync_all_to_mongodb
 )
 from langchain_extractor import extract_with_langchain_ensemble
 
@@ -2449,8 +2452,14 @@ def run_continuous_automation(config: dict, max_total_qrs: int = 1200):
         # -------------------------------------------------------------------------
         # PHASE 1: FILL UNFILLED PREVIOUS FORMS FIRST (If requested)
         # -------------------------------------------------------------------------
+        # Pre-scan sequence on startup to ensure all unfilled/missing forms are tracked
+        try:
+            scan_and_track_all_unfilled_qrs(verbose=False)
+        except Exception:
+            pass
+
         if config.get("fill_unfilled_first"):
-            unfilled_records = get_unfilled_records(status_filter="unfilled")
+            unfilled_records = get_unresolved_unfilled_records()
             unfilled_qrs = sorted(list({int(r["qr_number"]) for r in unfilled_records if r.get("qr_number")}))
 
             if unfilled_qrs:
@@ -2539,6 +2548,8 @@ if __name__ == "__main__":
     parser.add_argument("--delete", type=int, default=None, help="Delete a specific QR record from the database (e.g. --delete 1)")
     parser.add_argument("--list", action="store_true", help="List recent completed records from the database")
     parser.add_argument("--unfilled", action="store_true", help="List all unfilled/skipped records")
+    parser.add_argument("--scan-unfilled", action="store_true", help="Scan sequence for missing/unfilled forms, record them, and sync to MongoDB")
+    parser.add_argument("--sync-mongo", action="store_true", help="Perform full sync of SQLite database to Cloud MongoDB")
     parser.add_argument("--stats", action="store_true", help="Show database summary statistics")
     parser.add_argument("--fill-unfilled-first", action="store_true", help="Process and fill all pending unfilled forms first before continuing next QRs")
     parser.add_argument("--auto", action="store_true", help="Run non-interactively without prompting for input (for automated/agent execution)")
@@ -2557,6 +2568,14 @@ if __name__ == "__main__":
         next_qr = get_next_qr_to_process()
         print(f"[DB Status] Last completed QR in DB is now: QRCode - {last_qr}")
         print(f"[DB Status] Next run will resume from:       QRCode - {next_qr}")
+    elif args.scan_unfilled:
+        print("\n[*] Scanning sequence for missing or skipped forms...")
+        scan_and_track_all_unfilled_qrs(verbose=True)
+        print("\n[*] Syncing all records with Cloud MongoDB...")
+        sync_all_to_mongodb(verbose=True)
+    elif args.sync_mongo:
+        print("\n[*] Syncing all records with Cloud MongoDB...")
+        sync_all_to_mongodb(verbose=True)
     elif args.unfilled:
         unfilled = get_unfilled_records()
         print(f"\n{'='*75}")

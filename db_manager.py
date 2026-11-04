@@ -1,8 +1,191 @@
 import sqlite3
 import os
+import threading
 from datetime import datetime
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "qr_database.db")
+
+# Cloud MongoDB Atlas Configuration (Synced with Vercel Web App)
+MONGO_URI = os.getenv(
+    "MONGODB_URI",
+    "mongodb+srv://official4basha_db_user:xui37tp9xiymeCTf@cluster0.ymalimp.mongodb.net/?retryWrites=true&w=majority"
+)
+DB_NAME = os.getenv("MONGODB_DB", "AI_Automation_Forms")
+
+_mongo_client = None
+_mongo_lock = threading.Lock()
+
+
+def get_mongo_db():
+    """Thread-safe lazy-initialized MongoDB client."""
+    global _mongo_client
+    if _mongo_client is None:
+        with _mongo_lock:
+            if _mongo_client is None:
+                try:
+                    import pymongo
+                    _mongo_client = pymongo.MongoClient(
+                        MONGO_URI,
+                        serverSelectionTimeoutMS=3000,
+                        connectTimeoutMS=3000,
+                        socketTimeoutMS=5000,
+                        retryWrites=True,
+                    )
+                except Exception:
+                    return None
+    try:
+        return _mongo_client[DB_NAME]
+    except Exception:
+        return None
+
+
+def _run_in_background(target_fn, *args, **kwargs):
+    """Run non-blocking background thread for cloud synchronization."""
+    t = threading.Thread(target=target_fn, args=args, kwargs=kwargs, daemon=True)
+    t.start()
+    return t
+
+
+def sync_qr_record_to_mongo(qr_number: int, data: dict):
+    """Synchronize a completed/updated QR record to MongoDB Atlas 'qr_forms' and resolve unfilled."""
+    try:
+        db = get_mongo_db()
+        if db is None:
+            return
+        coll = db["qr_forms"]
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        doc_set = {
+            "qr_number": qr_number,
+            "qr_label": f"QRCode - {qr_number}",
+            "name": data.get("name", "") or "",
+            "designation": data.get("designation", "") or "",
+            "company": data.get("company", "") or "",
+            "website": data.get("website", "") or "",
+            "address": data.get("address", "") or "",
+            "email": data.get("email", "") or "",
+            "office_contact": data.get("office_contact", "") or "",
+            "status": "completed",
+            "updated_at": now_str,
+        }
+
+        # Preserve existing verification status if already set in MongoDB
+        coll.update_one(
+            {"qr_number": qr_number},
+            {
+                "$set": doc_set,
+                "$setOnInsert": {
+                    "created_at": now_str,
+                    "verification_status": "unverified",
+                    "version": 1
+                }
+            },
+            upsert=True
+        )
+
+        # Mark as resolved in unfilled_forms in MongoDB if exists
+        db["unfilled_forms"].update_one(
+            {"qr_number": qr_number},
+            {"$set": {"status": "resolved", "updated_at": now_str}}
+        )
+
+        # Remove from fill_queue if present
+        db["fill_queue"].delete_one({"qr_number": qr_number})
+
+    except Exception:
+        pass
+
+
+def sync_qr_record_to_mongo_async(qr_number: int, data: dict):
+    _run_in_background(sync_qr_record_to_mongo, qr_number, data)
+
+
+def sync_verification_record_to_mongo(qr_number: int, accuracy: float, status: str,
+                                     website_data: dict, image_data: dict, field_scores: dict,
+                                     discrepancies: list, ai_note: str = "", image_url: str = "", ocr_raw_text: str = ""):
+    """Synchronize a verification record to MongoDB Atlas 'qr_forms'."""
+    try:
+        db = get_mongo_db()
+        if db is None:
+            return
+        coll = db["qr_forms"]
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        import json
+        img_parsed = image_data if isinstance(image_data, dict) else (json.loads(image_data) if image_data else {})
+        scores_parsed = field_scores if isinstance(field_scores, dict) else (json.loads(field_scores) if field_scores else {})
+        disc_parsed = discrepancies if isinstance(discrepancies, (list, tuple)) else (json.loads(discrepancies) if discrepancies else [])
+
+        update_fields = {
+            "accuracy": float(accuracy) if accuracy is not None else None,
+            "image_url": image_url or "",
+            "ocr_raw_text": ocr_raw_text or "",
+            "discrepancies": str(disc_parsed),
+            "ai_note": ai_note or "",
+            "image_data": img_parsed,
+            "field_scores": scores_parsed,
+        }
+
+        # If admin verified locally, also reflect in verification_status
+        if status == "admin_verified":
+            update_fields["verification_status"] = "admin_verified"
+            update_fields["verified_by"] = "admin"
+            update_fields["verified_at"] = now_str
+
+        coll.update_one(
+            {"qr_number": qr_number},
+            {"$set": update_fields},
+            upsert=True
+        )
+    except Exception:
+        pass
+
+
+def sync_verification_record_to_mongo_async(qr_number: int, accuracy: float, status: str,
+                                           website_data: dict, image_data: dict, field_scores: dict,
+                                           discrepancies: list, ai_note: str = "", image_url: str = "", ocr_raw_text: str = ""):
+    _run_in_background(sync_verification_record_to_mongo, qr_number, accuracy, status,
+                       website_data, image_data, field_scores, discrepancies, ai_note, image_url, ocr_raw_text)
+
+
+def sync_unfilled_record_to_mongo(qr_number: int, reason: str, missing_fields=None, raw_data=None, status: str = "unfilled"):
+    """Synchronize an unfilled/failed record to MongoDB Atlas 'unfilled_forms'."""
+    try:
+        db = get_mongo_db()
+        if db is None:
+            return
+        coll = db["unfilled_forms"]
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        missing_str = ", ".join(str(f) for f in missing_fields) if isinstance(missing_fields, (list, tuple, set)) else (str(missing_fields) if missing_fields else "")
+        import json
+        raw_str = json.dumps(raw_data, default=str) if isinstance(raw_data, (dict, list)) else (str(raw_data) if raw_data else "")
+
+        coll.update_one(
+            {"qr_number": qr_number},
+            {
+                "$set": {
+                    "qr_number": qr_number,
+                    "qr_label": f"QRCode - {qr_number}",
+                    "reason": reason or "",
+                    "missing_fields": missing_str,
+                    "raw_data": raw_str,
+                    "status": status,
+                    "updated_at": now_str,
+                },
+                "$setOnInsert": {
+                    "created_at": now_str,
+                }
+            },
+            upsert=True
+        )
+    except Exception:
+        pass
+
+
+def sync_unfilled_record_to_mongo_async(qr_number: int, reason: str, missing_fields=None, raw_data=None, status: str = "unfilled"):
+    _run_in_background(sync_unfilled_record_to_mongo, qr_number, reason, missing_fields, raw_data, status)
+
 
 
 def get_connection():
@@ -118,6 +301,8 @@ def save_qr_record(qr_number: int, data: dict):
         """, (now_str, qr_number))
         conn.commit()
     print(f"[DB] Successfully saved QRCode - {qr_number} into database.")
+    # Cloud MongoDB Real-Time Sync (Non-blocking background thread)
+    sync_qr_record_to_mongo_async(qr_number, data)
     # Online Brain Learning: Update local Brain model with verified record
     try:
         from brain_engine import get_brain_engine
@@ -264,6 +449,8 @@ def save_unfilled_record(qr_number: int, reason: str, missing_fields=None, raw_d
         ))
         conn.commit()
     print(f"[DB] Saved QRCode - {qr_number} to Unfilled Forms. Reason: {reason}")
+    # Cloud MongoDB Real-Time Sync (Non-blocking background thread)
+    sync_unfilled_record_to_mongo_async(qr_number, reason, missing_fields, raw_data, status)
 
 
 def mark_failure_in_db(qr_number: int, reason: str, missing_fields=None, raw_data=None, status: str = "failure_occurred_langchain_pending"):
@@ -314,6 +501,8 @@ def update_failure_status(qr_number: int, status: str, reason: str = None, raw_d
                 WHERE qr_number = ?
             """, (status, now_str, qr_number))
         conn.commit()
+    # Cloud MongoDB Real-Time Sync
+    sync_unfilled_record_to_mongo_async(qr_number, reason=reason or f"Status: {status}", raw_data=raw_data, status=status)
 
 
 def get_unfilled_records(status_filter: str = None) -> list:
@@ -406,7 +595,7 @@ def get_stats() -> dict:
         cursor.execute("SELECT COUNT(*) FROM qr_records")
         total_completed = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM unfilled_records WHERE status = 'unfilled'")
+        cursor.execute("SELECT COUNT(*) FROM unfilled_records WHERE status != 'resolved'")
         total_unfilled = cursor.fetchone()[0]
 
         cursor.execute("SELECT COUNT(*) FROM unfilled_records WHERE status = 'resolved'")
@@ -422,6 +611,22 @@ def get_stats() -> dict:
             "last_completed_qr": last_qr,
             "next_qr": next_qr
         }
+
+
+def get_unresolved_unfilled_records() -> list:
+    """Fetch all unfilled/skipped records that are not resolved and not completed."""
+    init_db()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT qr_number, qr_label, reason, missing_fields, raw_data, status, created_at, updated_at
+            FROM unfilled_records
+            WHERE status != 'resolved'
+              AND qr_number NOT IN (SELECT qr_number FROM qr_records)
+            ORDER BY qr_number ASC
+        """)
+        return [dict(row) for row in cursor.fetchall()]
+
 
 
 def save_verification_record(qr_number: int, qr_label: str, accuracy: float, status: str,
@@ -466,6 +671,11 @@ def save_verification_record(qr_number: int, qr_label: str, accuracy: float, sta
             img_str, scores_str, disc_str, ai_note, image_url, ocr_raw_text, now_str
         ))
         conn.commit()
+    # Cloud MongoDB Real-Time Sync (Non-blocking background thread)
+    sync_verification_record_to_mongo_async(
+        qr_number, accuracy, status, website_data, image_data,
+        field_scores, discrepancies, ai_note, image_url, ocr_raw_text
+    )
 
 
 def get_verification_records(filter_status: str = "", search: str = "", limit: int = None, offset: int = 0) -> list:
@@ -628,15 +838,239 @@ def get_verification_stats() -> dict:
         }
 
 
+def scan_and_track_all_unfilled_qrs(max_limit: int = None, verbose: bool = True) -> dict:
+    """
+    Scans the entire sequence from 1 to the highest completed QR number (or max_limit).
+    Detects any QRs that are missing from qr_records.
+    Automatically notes and tracks them in unfilled_records and syncs with MongoDB Atlas.
+    Reconciles any previously unfilled QRs that have now been completed.
+    """
+    init_db()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT qr_number FROM qr_records")
+        completed_set = {r[0] for r in cursor.fetchall()}
+
+        max_completed = max(completed_set) if completed_set else 0
+        scan_limit = max(max_completed, max_limit or 0)
+
+        cursor.execute("SELECT qr_number, status FROM unfilled_records")
+        unfilled_rows = cursor.fetchall()
+        unfilled_map = {r[0]: r[1] for r in unfilled_rows}
+
+        newly_tracked = []
+        reopened = []
+        resolved = []
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        for n in range(1, scan_limit + 1):
+            if n not in completed_set:
+                # This QR is NOT completed!
+                if n not in unfilled_map:
+                    cursor.execute("""
+                        INSERT INTO unfilled_records (qr_number, qr_label, reason, status, updated_at, created_at)
+                        VALUES (?, ?, ?, 'unfilled', ?, ?)
+                    """, (n, f"QRCode - {n}", "Detected missing / unfilled form during scan", now_str, now_str))
+                    newly_tracked.append(n)
+                elif unfilled_map[n] == "resolved":
+                    cursor.execute("""
+                        UPDATE unfilled_records
+                        SET status = 'unfilled', reason = 'Re-opened: missing from completed records', updated_at = ?
+                        WHERE qr_number = ?
+                    """, (now_str, n))
+                    reopened.append(n)
+            else:
+                # This QR IS completed!
+                if n in unfilled_map and unfilled_map[n] != "resolved":
+                    cursor.execute("""
+                        UPDATE unfilled_records
+                        SET status = 'resolved', updated_at = ?
+                        WHERE qr_number = ?
+                    """, (now_str, n))
+                    resolved.append(n)
+
+        conn.commit()
+
+        # Count total unresolved
+        cursor.execute("SELECT COUNT(*) FROM unfilled_records WHERE status != 'resolved'")
+        total_unresolved = cursor.fetchone()[0]
+
+    # Batch sync newly tracked to MongoDB in background
+    for n in newly_tracked + reopened:
+        sync_unfilled_record_to_mongo_async(n, reason="Detected missing / unfilled form during scan", status="unfilled")
+    for n in resolved:
+        sync_unfilled_record_to_mongo_async(n, reason="Resolved / Form completed", status="resolved")
+
+    if verbose:
+        print(f"[*] Sequence Scan (QR 1 to {scan_limit}):")
+        print(f"    [+] Completed in DB:         {len(completed_set)} QRs")
+        print(f"    [!] Pending Unfilled Forms:   {total_unresolved} QRs")
+        if newly_tracked:
+            print(f"    [+] Newly Tracked Missing:   {len(newly_tracked)} forms -> {newly_tracked[:10]}{'...' if len(newly_tracked)>10 else ''}")
+        if reopened:
+            print(f"    [+] Re-opened (Uncompleted): {len(reopened)} forms -> {reopened[:10]}")
+        if resolved:
+            print(f"    [+] Reconciled Resolved:     {len(resolved)} forms")
+
+    return {
+        "max_completed": max_completed,
+        "completed_count": len(completed_set),
+        "total_unresolved": total_unresolved,
+        "newly_tracked": newly_tracked,
+        "reopened": reopened,
+        "resolved": resolved
+    }
+
+
+def sync_all_to_mongodb(verbose: bool = True) -> dict:
+    """
+    Perform a complete bulk upsert of all local SQLite records into Cloud MongoDB Atlas.
+    Safe, fast, and idempotent.
+    """
+    try:
+        import pymongo
+        db = get_mongo_db()
+        if db is None:
+            if verbose:
+                print("[MongoSync] Cloud MongoDB not reachable (Offline mode). Continuing locally.")
+            return {"success": False, "error": "MongoDB unreachable"}
+
+        init_db()
+        with get_connection() as conn:
+            cur = conn.cursor()
+
+            # 1. Verification records map
+            cur.execute("SELECT * FROM verification_records")
+            verif_map = {r["qr_number"]: dict(r) for r in cur.fetchall()}
+
+            # 2. Admin verified map
+            cur.execute("SELECT qr_number, verified_at FROM admin_verified_qrs")
+            admin_map = {r["qr_number"]: r["verified_at"] for r in cur.fetchall()}
+
+            # 3. qr_records
+            cur.execute("SELECT * FROM qr_records ORDER BY qr_number ASC")
+            qr_rows = [dict(r) for r in cur.fetchall()]
+
+            # 4. unfilled_records
+            cur.execute("SELECT * FROM unfilled_records ORDER BY qr_number ASC")
+            unfilled_rows = [dict(r) for r in cur.fetchall()]
+
+        # Prepare QR forms upserts
+        import json
+        qr_ops = []
+        for r in qr_rows:
+            num = r["qr_number"]
+            v_info = verif_map.get(num, {})
+            is_admin_v = num in admin_map
+
+            img_data = v_info.get("image_data")
+            if isinstance(img_data, str) and img_data:
+                try:
+                    img_data = json.loads(img_data)
+                except Exception:
+                    img_data = {}
+            elif not isinstance(img_data, dict):
+                img_data = {}
+
+            f_scores = v_info.get("field_scores")
+            if isinstance(f_scores, str) and f_scores:
+                try:
+                    f_scores = json.loads(f_scores)
+                except Exception:
+                    f_scores = {}
+            elif not isinstance(f_scores, dict):
+                f_scores = {}
+
+            doc = {
+                "qr_number": num,
+                "qr_label": r["qr_label"] or f"QRCode - {num}",
+                "name": r["name"] or "",
+                "designation": r["designation"] or "",
+                "company": r["company"] or "",
+                "website": r["website"] or "",
+                "address": r["address"] or "",
+                "email": r["email"] or "",
+                "office_contact": r["office_contact"] or "",
+                "status": "admin_verified" if is_admin_v else ("verified" if v_info.get("status") == "verified" else "completed"),
+                "verification_status": "admin_verified" if is_admin_v else "unverified",
+                "verified_by": "admin" if is_admin_v else None,
+                "verified_at": admin_map.get(num) or v_info.get("verified_at"),
+                "updated_at": r["updated_at"],
+                "created_at": r["created_at"],
+                "accuracy": v_info.get("accuracy"),
+                "image_url": v_info.get("image_url") or "",
+                "image_data": img_data,
+                "field_scores": f_scores,
+                "ocr_raw_text": v_info.get("ocr_raw_text") or "",
+                "discrepancies": v_info.get("discrepancies") or "",
+            }
+            qr_ops.append(
+                pymongo.UpdateOne(
+                    {"qr_number": num},
+                    {
+                        "$set": doc,
+                        "$setOnInsert": {"version": 1}
+                    },
+                    upsert=True
+                )
+            )
+
+        if qr_ops:
+            coll_qr = db["qr_forms"]
+            coll_qr.bulk_write(qr_ops, ordered=False)
+
+        # Prepare unfilled upserts
+        unfilled_ops = []
+        for u in unfilled_rows:
+            num = u["qr_number"]
+            unfilled_ops.append(
+                pymongo.UpdateOne(
+                    {"qr_number": num},
+                    {
+                        "$set": {
+                            "qr_number": num,
+                            "qr_label": u["qr_label"] or f"QRCode - {num}",
+                            "reason": u["reason"] or "",
+                            "missing_fields": u["missing_fields"] or "",
+                            "raw_data": u["raw_data"] or "",
+                            "status": u["status"] or "unfilled",
+                            "updated_at": u["updated_at"],
+                        },
+                        "$setOnInsert": {
+                            "created_at": u["created_at"]
+                        }
+                    },
+                    upsert=True
+                )
+            )
+
+        if unfilled_ops:
+            coll_un = db["unfilled_forms"]
+            coll_un.bulk_write(unfilled_ops, ordered=False)
+
+        if verbose:
+            print(f"[MongoSync] Cloud DB successfully synced: {len(qr_ops)} completed QRs, {len(unfilled_ops)} unfilled/tracked records.")
+
+        return {"success": True, "synced_qrs": len(qr_ops), "synced_unfilled": len(unfilled_ops)}
+    except Exception as e:
+        if verbose:
+            print(f"[MongoSync Warning] Cloud sync exception: {e}")
+        return {"success": False, "error": str(e)}
+
 
 if __name__ == "__main__":
     import sys
     init_db()
-    if len(sys.argv) > 2 and sys.argv[1] == "--delete":
+    if len(sys.argv) > 1 and sys.argv[1] == "--scan-unfilled":
+        scan_and_track_all_unfilled_qrs(verbose=True)
+    elif len(sys.argv) > 1 and sys.argv[1] == "--sync-mongo":
+        sync_all_to_mongodb(verbose=True)
+    elif len(sys.argv) > 2 and sys.argv[1] == "--delete":
         delete_qr_record(int(sys.argv[2]))
     else:
         last = get_last_qr_number()
         print(f"[DB Status] Last completed QR: {last}")
         print(f"[DB Status] Next QR to process: {get_next_qr_to_process()}")
         list_records()
+
 

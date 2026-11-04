@@ -463,6 +463,12 @@ export default function Home() {
     if (refValue) {
       return calculateSimilarity(currentValue, refValue);
     }
+    // 3. Fallback: check substring presence in raw OCR text
+    if (activeForm.ocr_raw_text && currentValue && currentValue.trim().length > 2) {
+      if (activeForm.ocr_raw_text.toLowerCase().includes(currentValue.trim().toLowerCase())) {
+        return 100;
+      }
+    }
     return 100;
   };
 
@@ -893,35 +899,35 @@ export default function Home() {
 
             {/* Scrollable Modal Content */}
             <div className="overflow-y-auto pr-1 py-3 space-y-4 flex-1 text-xs">
-              {/* 1. TOP SECTION: Snug, Fitted Business Card Image (No Wasted Space) */}
-              <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5 flex flex-col items-center">
-                <div className="w-full flex items-center justify-between mb-1.5 px-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                    <Eye className="w-3 h-3 text-indigo-400" />
-                    Original Card Image
+              {/* 1. TOP SECTION: Full Width Business Card Image (Zero Wasted Space) */}
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+                <div className="w-full flex items-center justify-between px-3 py-1.5 bg-slate-900/60 border-b border-slate-800/60">
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                    Original Business Card Image
                   </span>
                   {activeForm.image_url && (
                     <a
                       href={activeForm.image_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition"
+                      className="text-[10px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition font-medium"
                     >
-                      <Maximize2 className="w-2.5 h-2.5" /> High-Res
+                      <Maximize2 className="w-3 h-3" /> Full Res
                     </a>
                   )}
                 </div>
 
                 {activeForm.image_url ? (
-                  <div className="w-full flex justify-center items-center py-1">
+                  <div className="w-full bg-slate-950/80 flex items-center justify-center p-1">
                     <img
                       src={activeForm.image_url}
                       alt={`QRCode - ${activeForm.qr_number}`}
-                      className="max-h-40 sm:max-h-48 w-auto rounded-lg border border-slate-700/80 shadow-md object-contain"
+                      className="w-full max-h-56 sm:max-h-64 object-contain rounded-md"
                     />
                   </div>
                 ) : (
-                  <div className="w-full py-4 bg-slate-900/40 rounded-lg border border-dashed border-slate-800 flex items-center justify-center text-slate-500 text-[11px]">
+                  <div className="w-full py-6 bg-slate-900/40 flex items-center justify-center text-slate-500 text-xs">
                     No card preview image URL recorded
                   </div>
                 )}
@@ -944,7 +950,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Full Name */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Full Name</span>
                       {renderMatchBadge(getFieldMatchScore("name", formData.name))}
                     </label>
@@ -958,7 +964,7 @@ export default function Home() {
 
                   {/* Designation */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Designation</span>
                       {renderMatchBadge(getFieldMatchScore("designation", formData.designation))}
                     </label>
@@ -972,7 +978,7 @@ export default function Home() {
 
                   {/* Company Name */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Company Name</span>
                       {renderMatchBadge(getFieldMatchScore("company", formData.company))}
                     </label>
@@ -986,7 +992,7 @@ export default function Home() {
 
                   {/* Website URL */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Website URL</span>
                       {renderMatchBadge(getFieldMatchScore("website", formData.website))}
                     </label>
@@ -1000,7 +1006,7 @@ export default function Home() {
 
                   {/* Address */}
                   <div className="sm:col-span-2">
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Address (Verbatim)</span>
                       {renderMatchBadge(getFieldMatchScore("address", formData.address))}
                     </label>
@@ -1014,7 +1020,7 @@ export default function Home() {
 
                   {/* Email */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Email Address</span>
                       {renderMatchBadge(getFieldMatchScore("email", formData.email))}
                     </label>
@@ -1028,7 +1034,7 @@ export default function Home() {
 
                   {/* Office Contact */}
                   <div>
-                    <label className="flex items-center justify-between text-slate-400 font-medium mb-1">
+                    <label className="flex items-center gap-2 text-slate-400 font-medium mb-1">
                       <span>Office Contact</span>
                       {renderMatchBadge(getFieldMatchScore("office_contact", formData.office_contact))}
                     </label>

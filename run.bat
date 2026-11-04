@@ -2,6 +2,11 @@
 title Zen Data Protsk Control Hub
 cls
 echo ========================================================
+echo        ZEN DATA PROTSK - SCANNING UNFILLED FORMS
+echo ========================================================
+python data_entry_automation.py --scan-unfilled
+echo.
+echo ========================================================
 echo        ZEN DATA PROTSK - AUTOMATION & DASHBOARD
 echo ========================================================
 echo.
@@ -70,4 +75,3 @@ exit
 echo.
 call verify_run.bat
 exit
-
